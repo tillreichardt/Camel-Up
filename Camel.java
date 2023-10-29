@@ -2,114 +2,91 @@ import greenfoot.*;
 
 public class Camel extends Actor
 {
-    private int Xposition;
-    private int Yposition;
+    private int positionAufStrecke;
     private String color;
-    private Camel WerSitztAufMir; 
-    private Camel sitzendAuf; 
-    private boolean sitztAufJemanden;
-    private boolean JemandSitztAufMir;
-    public Camel(int x, int y, String pColor){
-        setLocation(x, y);
-        Xposition = x;
-        Yposition = y;
-        color = pColor; 
-        sitztAufJemanden = false; 
+    private Camel camelAufMir; //der über mir 
+    private Camel camelUnterMir; 
+    public Camel(String pColor,  int posAufStrecke){
+        color = pColor;
+        //setLocation(x, y);
+        positionAufStrecke = posAufStrecke;
+        camelUnterMir = null; 
+        camelAufMir = null; 
+    } 
+    
+    
+    
+    public void carry(Camel camel) { // z.b. c1 soll auf c2. --> c2.carry(c1)
+        camelAufMir = camel;
+        camel.setCamelUnterMir(this); 
     }
-    public void bewege(int schritte) {
-
-        if (getJemandSitztAufMir()) {
+    
+    public int getPositionAufStrecke(){
+        return positionAufStrecke;
+    }
+    
+    public void dropAbove(){
+        if(camelAufMir != null ){
+            camelAufMir.setCamelUnterMir(null); 
+            camelAufMir = null;
+        } else {System.out.println("nobody is above me");}
+    }
+    
+    public void dropSelf(){
+        if(camelUnterMir != null){
+           camelUnterMir.setCamelAufMir(null);
+           camelUnterMir  = null; 
+        } else {System.out.println("nobody is below me");}
+        
+    }
+    
+    public void setCamelAufMir(Camel camel){
+        camelAufMir = camel;
+    }
+    
+    public boolean isCarrying() {
+        return camelAufMir != null;
+    }
+    
+    public void setCamelUnterMir(Camel camel){
+        camelUnterMir = camel; 
+    }
+    
+    public boolean gettingCarried(){
+        return camelUnterMir != null; 
+    }
+    
+    public String getColor(){
+        return color; 
+    }
+    
+    public void move(int schritte, boolean first) {
+        if (isCarrying()) {
             // Wenn das Kamel auf einem anderen Kamel sitzt, bewege beide gemeinsam
-            this.Xposition += schritte;
-            WerSitztAufMir.Xposition += schritte;
-            // Aktualisiere die Position des Kamels auf dem Spielfeld
-            int x = getX() + (schritte * 50);  // Annahme: 50 Pixel pro Schritt
-            setCoordinates(x, getY());
-            WerSitztAufMir.setCoordinates(x, WerSitztAufMir.getY());
-        } else {
-            // Andernfalls bewege nur dieses Kamel
-            this.Xposition += schritte;
-            // Aktualisiere die Position des Kamels auf dem Spielfeld
-            int x = getX() + (schritte * 50);  // Annahme: 50 Pixel pro Schritt
-            setCoordinates(x, getY());
-
+            camelAufMir.move(schritte);
+        } else if (camelsBelow() >= 1){
+            dropSelf();
         }
+        this.positionAufStrecke += schritte;
     }
-    public void setCoordinates(int x, int y) {
-        setLocation(x, y); // Diese Methode wird von Greenfoot bereitgestellt, um die Koordinaten zu setzen
-    }     
-    //z.b. greenCamel.WelchesCamelSitztAufMir(blueCamel) --> blue sitzt auf green
-    public void WelchesCamelSitztAufMir(Camel camel) {
-        WerSitztAufMir = camel;
-        JemandSitztAufMir = true; 
+    
+    public int camelsAbove(){
+        if (isCarrying()) { 
+            return camelAufMir.camelsAbove() + 1;
+        }
+        return 0;
     }
-
-    public void setzeAuf(Camel camel) {
-        sitzendAuf = camel;
+    
+    public int camelsBelow(){
+        if (gettingCarried()) { 
+            return camelUnterMir.camelsBelow() + 1;
+        }
+        return 0;
     }
-
-    @Override
+    
+    @Override 
     public String toString() {
-        return color + "Camel";  // Dies gibt z.B. "greenCamel" für ein grünes Kamel aus
-    }
-
-    public int getXposition() {
-        return this.Xposition;
-    }
-
-    public void setXposition(int Xposition) {
-        this.Xposition = Xposition;
-    }
-
-    public int getYposition() {
-        return this.Yposition;
-    }
-
-    public void setYposition(int Yposition) {
-        this.Yposition = Yposition;
-    }
-
-    public String getColor() {
-        return this.color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public Camel getWerSitztAufMir() {
-        return this.WerSitztAufMir;
-    }
-
-    public void setWerSitztAufMir(Camel WerSitztAufMir) {
-        this.WerSitztAufMir = WerSitztAufMir;
-    }
-
-    public Camel getSitzendAuf() {
-        return this.sitzendAuf;
-    }
-
-    public void setSitzendAuf(Camel sitzendAuf) {
-        this.sitzendAuf = sitzendAuf;
-    }
-
-    public boolean getSitztAufJemanden() {
-        return this.sitztAufJemanden;
-    }
-
-    public void setSitztAufJemanden(boolean sitztAufJemanden) {
-        this.sitztAufJemanden = sitztAufJemanden;
-    }
-
-    public boolean isJemandSitztAufMir() {
-        return this.JemandSitztAufMir;
-    }
-
-    public boolean getJemandSitztAufMir() {
-        return this.JemandSitztAufMir;
-    }
-
-    public void setJemandSitztAufMir(boolean JemandSitztAufMir) {
-        this.JemandSitztAufMir = JemandSitztAufMir;
+        return color + "; pos = " + positionAufStrecke + "; cAbove = " +  camelsAbove() + "; cBelow = " + camelsBelow(); // Dies gibt z.B. "greenCamel" für ein grünes Kamel aus
+        
     }
 }
