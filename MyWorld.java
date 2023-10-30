@@ -17,16 +17,21 @@ public class myWorld extends World {
         rennBahn = new CamelTrack();
         addObject(rennBahn, 450, 775);
         rennBahn.addCamelsToBoard();
-        
+        // Reihenfolge: cw unten, co mitte, cb oben
         Camel co = rennBahn.getCamelByColor("orange");
         Camel cw = rennBahn.getCamelByColor("white");
+        Camel cb = rennBahn.getCamelByColor("blue");
         
         cw.carry(co);
+        co.carry(cb);
     }
     public void act(){
         rennBahn.moveCamel("white", 1);
     }
     public void moveOrange(){
         rennBahn.moveCamel("orange", 1);
+    }
+    public void moveBlue(){
+        rennBahn.moveCamel("blue", 1);
     }
 }

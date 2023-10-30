@@ -17,8 +17,7 @@ public class CamelTrack extends Actor{
         int ownHeight = getImage().getHeight();
         int ownX = getX();
         int ownY = getY();
-        
-        
+
         // Berechnung der Umrechnungsfaktoren
         float cellWidth = ownWidth / (float) BOARD_COLS; // Pixel pro Array-Einheit (Breite)
         float cellHeight = ownHeight / (float) BOARD_ROWS; // Pixel pro Array-Einheit (Höhe)
@@ -31,17 +30,16 @@ public class CamelTrack extends Actor{
             camels[i] = new Camel(CAMEL_COLORS[i], 0);
             getWorld().addObject(camels[i], (int)x, (int)y);
         }
-        
+
     }
-    
+
     public void printCamels(){
         System.out.println("\n");
         for(int i = 0; i < camels.length; i++){
             System.out.println(camels[i]);
         }
     }
-    
-    
+
     public Camel getCamelByColor(String color){
         for(int i = 0; i < camels.length; i++){
             if (camels[i].getColor() == color){
@@ -50,30 +48,45 @@ public class CamelTrack extends Actor{
         }
         return null;
     }
+
     public void moveCamel(String camelColor, int steps) {
         Camel camelToMove = getCamelByColor(camelColor);
+        // Zuerst das aktuelle Camel detachen (dropSelf)
+        // und an der Ziel pos per schleife das oberste Camel finden und an dieses attachen 
+        Camel highestCamel = null;
+
+        
+        camelToMove.dropSelf();
+        int targetField = camelToMove.getPositionOnTrack() + steps;
+        for (int j = 0; j < camels.length; j++) {
+            if (camels[j].getPositionOnTrack() == targetField) {
+                highestCamel = camels[j].getHighestCamel();// <-- neue Funktion in Kamel
+                highestCamel.carry(camelToMove);
+                break;
+            }
+        }
         camelToMove.move(steps); 
         updateBoard();
     }
+
     public void updateBoard(){
         // Wir müssen durch alle durch loopen
         // Und die Position snacken
         // und gucken ob sie auf jemanden sitzen 
         // wenn sie auf einem sitzen, nach oben schieben in der reihenfolge 
-        
-        
+
         //1. Durch loopen
         int ownWidth = getImage().getWidth();
         int ownHeight = getImage().getHeight();
-        
+
         int ownX = getX();
         int ownY = getY();
-        
+
         float cellWidth = ownWidth / (float) BOARD_COLS; // Pixel pro Array-Einheit (Breite)
         float cellHeight = ownHeight / (float) BOARD_ROWS; // Pixel pro Array-Einheit (Höhe)
-        
+
         for(int i = 0; i < camels.length; i++){
-            float x = ownX - ownWidth / 2 + camels[i].getPositionAufStrecke() * cellWidth + cellWidth/ 2;
+            float x = ownX - ownWidth / 2 + camels[i].getPositionOnTrack() * cellWidth + cellWidth/ 2;
             float y = ownY + ownHeight / 2 - camels[i].camelsBelow() * cellHeight - cellHeight / 2;
             //        900 - 125 + 0 + 25
             camels[i].setLocation((int)x, (int)y);
