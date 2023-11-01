@@ -88,6 +88,14 @@ public class Camel extends Actor
             return this;
         }
     }
+    
+    public Camel getLowestCamel() {
+        if (this.camelBelow != null) {
+            return this.camelBelow.getLowestCamel();
+        } else {
+            return this;
+        }
+    }
 
     @Override 
     public String toString() {
