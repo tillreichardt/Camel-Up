@@ -2,10 +2,17 @@ import greenfoot.*;
 public class Player extends Actor
 {
     private int coins;
-    private ActionCard specialCard;
+    private boolean actionCardPlayed;
     public Player(){
-        // specialCard = new ActionCard();
-        //specialCard.setOwner(this);
+        actionCardPlayed = false;
+    }
+    
+    public void setActionCardPlayed(boolean value){
+        actionCardPlayed = value;
+    }
+    
+    public boolean getActionCardPlayed(){
+        return actionCardPlayed;
     }
     
 }
