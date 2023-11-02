@@ -38,7 +38,7 @@ public class CamelTrack extends Actor{
         card.setPositionOnTrack(position);
         actionCardsOnTrack.add(card);
     }
-
+    
     public ActionCard getActionCardAtPosition(int position){
         for (ActionCard ac : actionCardsOnTrack) {
             if (ac.getPositionOnTrack() == position) {
@@ -93,7 +93,7 @@ public class CamelTrack extends Actor{
         }
         return null; // Kein Kamel an dieser Position gefunden
     }
-
+    
     public Camel findLowestCamelAtPosition(int position) {
         for (int j = 0; j < camels.length; j++) {
             if (camels[j].getPositionOnTrack() == position) {

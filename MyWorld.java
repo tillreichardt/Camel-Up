@@ -5,7 +5,7 @@ public class myWorld extends World {
     private CamelTrack rennBahn;
     private Player CockInspector;
     private boolean gameEnded;  
-    private OasisCard specialCard;
+    private DesertCard specialCard;
     
     public myWorld(){
         super (18*GRID_SIZE, 18*GRID_SIZE, 1);
@@ -15,7 +15,7 @@ public class myWorld extends World {
     }
     private void setup(){
         CockInspector = new Player();
-        specialCard = new OasisCard();
+        specialCard = new DesertCard();
         
         rennBahn = new CamelTrack();
         addObject(rennBahn, 450, 775);
@@ -30,7 +30,7 @@ public class myWorld extends World {
         co.carry(cb);
     }
     public void act(){
-        rennBahn.moveCamel("white", 1);
+        rennBahn.moveCamel("white", 2);
     }
     public void moveOrange(){
         rennBahn.moveCamel("orange", 1);

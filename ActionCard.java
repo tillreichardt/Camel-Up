@@ -14,7 +14,7 @@ public class ActionCard extends Card {
         System.out.println(this.name + "wurde von " + camel.getColor() + " aktiviert"); 
     }
     
-    public void setCamelTrack(CamelTrack cameltrack){
+    public void setCamelTrack(CamelTrack camelTrack){
         this.camelTrack = camelTrack;
         System.out.println(this.camelTrack);
     }
@@ -26,5 +26,4 @@ public class ActionCard extends Card {
     public void setPositionOnTrack(int pos){
         positionOnTrack = pos;
     }
-    
 }
