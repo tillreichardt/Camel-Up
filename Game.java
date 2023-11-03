@@ -61,12 +61,21 @@ public class Game extends World {
     public void moveBlue(){
         rennBahn.moveCamel("blue", 1);
     }
+    public void moveYellow(){
+        rennBahn.moveCamel("yellow", 1);
+    }
+    public void moveGreen(){
+        rennBahn.moveCamel("green", 1);
+    }
     public void usePCard() {
         if (!pyramidCards.isEmpty()) {
             pyramidCards.pop();
         } else {
             System.out.println("Keine Karten mehr vorhanden.");
         }
+    }
+    public void print(){
+        System.out.println(rennBahn.getCamelSorted());
     }
     // 4 Möglichkeiten
     // case 1 - 4; 

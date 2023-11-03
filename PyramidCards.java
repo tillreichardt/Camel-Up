@@ -1,18 +1,37 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
-public class PyramidCards extends Card{
-    private boolean used;
+/**
+ * Write a description of class PyramidCards here.
+ * 
+ * @author (your name) 
+ * @version (a version number or a date)
+ */
+public class PyramidCards extends Actor
+{
     
-    public PyramidCards(){
-        super("Pyramid Card");
-    }
-    
-    public void setUsed(boolean value){
-        used = value;
-    }
-    
-    public boolean getUsed(){
-        return used;
+    public void act()
+    {
+        // Add your action code here.
     }
     
 }
+// private class PyramidCard extends Actor{
+    // private boolean used;
+    
+    
+    
+    // public PyramidCard(){
+        
+    // }
+    
+    // public void setUsed(boolean value){
+        // used = value;
+    // }
+    
+    // public boolean getUsed(){
+        // return used;
+    // }
+    // ein coin value 
+    
+// }
+
