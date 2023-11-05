@@ -62,16 +62,6 @@ public class CamelTrack extends Actor{
         printCamels();
     }
 
-    // array mit platzierung 
-    // array rückwärts durchlaufen 
-    // camels array 
-    // camels durchgehen 
-    // positionOnTrack 
-    // erstes camel in neues temp array 
-    // mit anderen camels vergleichen und dann in array einsortieren 
-    // array sortieren, 
-
-    // temp array innerhalb
     public List<Camel> getCamelSorted(){
         List<Camel> sortedCamels = new ArrayList<>();
         for (int i = 0; i < 5; i++){

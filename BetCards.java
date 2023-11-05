@@ -1,70 +1,35 @@
-import java.util.Stack;
+import java.util.*;
 
 public class BetCards {
-    private static final String[] COLORS = {"white", "green", "blue", "yellow", "orange"};
-    private Stack<BetCard>[] betCardStacks; // Array of stacks for each camel color
+    private static final String[] CAMEL_COLORS = {"white", "green", "blue", "yellow", "orange"};
+    private List<Stack<BetCard>> betCardList;
 
-    public BetCards() {
-        betCardStacks = new Stack[COLORS.length];
-        for (int i = 0; i < betCardStacks.length; i++) {
-            betCardStacks[i] = new Stack<>();
-            // Populate each stack with 5 BetCard objects
-            for (int j = 0; j < 5; j++) {
-                betCardStacks[i].push(new BetCard(5 - j)); // Assign coin values 5, 4, 3, 2, 1
+    public BetCards(){
+        betCardList = new ArrayList<>(CAMEL_COLORS.length);
+        resetBetCardList(); // damit man kein duplicate Code hat
+    }
+
+    public BetCard drawBetCard(String color){
+        for (int i = 0; i < betCardList.size(); i++){
+            if (betCardList.get(i).peek().getColor() == color){
+                return betCardList.get(i).pop();
             }
         }
+        return null;
     }
 
-    public int getCoinsForBet(String camelColor, int position) {
-        int colorIndex = -1;
-        for (int i = 0; i < COLORS.length; i++) {
-            if (COLORS[i].equalsIgnoreCase(camelColor)) {
-                colorIndex = i;
-                break;
-            }
-        }
-        
-        if (colorIndex == -1) {
-            throw new IllegalArgumentException("Invalid camel color");
-        }
-
-        // fehlt noch logik für coins 
-        
-        return 0;
-    }
-    public BetCard useBetCard(String camelColor) {
-        int colorIndex = -1;
-        for (int i = 0; i < COLORS.length; i++) {
-            if (COLORS[i].equalsIgnoreCase(camelColor)) {
-                colorIndex = i;
-                break;
-            }
-        }
-        
-        if (colorIndex == -1) {
-            throw new IllegalArgumentException("Invalid camel color");
-        }
-
-        // gucke, ob der Stack von einer Farbe noch nicht leer ist. 
-        if (!betCardStacks[colorIndex].isEmpty()) {
-            return betCardStacks[colorIndex].pop();
-        } else {
-            System.out.println("No bet cards left for " + camelColor + " camel.");
-            return null;
+    public void resetBetCardList(){
+        betCardList.clear();
+        HashMap<Integer, Integer> punkteMap = new HashMap<>();
+        punkteMap.put(2, 1);
+        for (int i = 0; i < betCardList.size(); i++){
+            punkteMap.put(1, 2);
+            betCardList.get(i).push(new BetCard(CAMEL_COLORS[i], new HashMap<>(punkteMap)));
+            punkteMap.put(1, 3);
+            betCardList.get(i).push(new BetCard(CAMEL_COLORS[i], new HashMap<>(punkteMap)));
+            punkteMap.put(1, 5);
+            betCardList.get(i).push(new BetCard(CAMEL_COLORS[i], new HashMap<>(punkteMap)));
         }
     }
-
-
-    private class BetCard {
-        int coins;
-
-        public BetCard(int coins) {
-            this.coins = coins;
-        }
-
-        
-        public int getCoins() {
-            return coins;
-        }
-    }
+    
 }

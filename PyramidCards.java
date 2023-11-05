@@ -1,37 +1,27 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*; 
+import java.util.*;
 
-/**
- * Write a description of class PyramidCards here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
-public class PyramidCards extends Actor
-{
+public class PyramidCards extends Actor{
+    private Stack<PyramidCard> cards;
     
-    public void act()
-    {
-        // Add your action code here.
+    public PyramidCards(){}
+    
+    public void fillStack(){
+        cards.push(new PyramidCard());
     }
     
+    public void usePyramidCard(Player player){
+        if (!cards.isEmpty()) {
+            PyramidCard card = cards.pop();
+            card.setPlayer(player);
+            System.out.println(player + " hat eine Pyramiden Karte benutzt und es wurde gewürfelt.");
+        } else {
+            System.out.println("Keine Karten mehr vorhanden.");
+        }
+    }
+    
+    public Stack<PyramidCard> giveOutCards(){
+        return cards;
+    }
 }
-// private class PyramidCard extends Actor{
-    // private boolean used;
-    
-    
-    
-    // public PyramidCard(){
-        
-    // }
-    
-    // public void setUsed(boolean value){
-        // used = value;
-    // }
-    
-    // public boolean getUsed(){
-        // return used;
-    // }
-    // ein coin value 
-    
-// }
 
