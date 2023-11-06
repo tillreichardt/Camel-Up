@@ -28,14 +28,14 @@ public class Camel extends Actor
         if(camelAbove != null ){
             camelAbove.setcamelBelow(null); 
             camelAbove = null;
-        } else {System.out.println("nobody is above me");}
+        } 
     }
 
     public void dropSelf(){
         if(camelBelow != null){
             camelBelow.setcamelAbove(null);
             camelBelow  = null; 
-        } else {System.out.println("nobody is below me");}
+        } 
 
     }
 

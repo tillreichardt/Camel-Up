@@ -29,4 +29,10 @@ public class Dice {
     public void reset() {
         this.value = -1; // Reset to the sentinel value
     }
+    
+    @Override 
+    public String toString() {
+        return color + "Dice";
+
+    }
 }

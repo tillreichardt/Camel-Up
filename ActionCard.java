@@ -17,7 +17,6 @@ public class ActionCard extends Card {
     
     public void setCamelTrack(CamelTrack camelTrack){
         this.camelTrack = camelTrack;
-        System.out.println(this.camelTrack);
     }
     
     public void setPlayed(boolean value){

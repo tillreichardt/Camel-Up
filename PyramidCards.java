@@ -1,27 +1,26 @@
-import greenfoot.*; 
 import java.util.*;
-
-public class PyramidCards extends Actor{
+public class PyramidCards{
     private Stack<PyramidCard> cards;
     
-    public PyramidCards(){}
-    
-    public void fillStack(){
-        cards.push(new PyramidCard());
+    public PyramidCards(){
+        cards = new Stack<>();
+        this.reset();
     }
     
-    public PyramidCard usePyramidCard(){
+    public void reset(){
+        cards.clear();
+        for (int i = 0; i <= 5; i++){
+            this.cards.push(new PyramidCard());
+        }
+    }
+    
+    public PyramidCard getPyramidCard(){
         if (!cards.isEmpty()) {
-            System.out.println("Es wurde eine Pyramiden Karte benutzt und es wurde gewürfelt.");
+            System.out.println("Es wurde eine Pyramiden Karte gezogen");
             return cards.pop();
         } else {
             System.out.println("Keine Karten mehr vorhanden.");
             return null;
         }
     }
-    
-    public Stack<PyramidCard> giveOutCards(){
-        return cards;
-    }
 }
-

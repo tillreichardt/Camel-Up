@@ -47,18 +47,20 @@ public class DiceSet {
         return randomDice;
     }
 
-    public Dice[] rollAllDices() {
+    public Dice[] rollAllAvailableDices() {
         Dice[] results = new Dice[availableDices.size()];
         for (int i = 0; i < availableDices.size(); i++) {
             Dice dice = availableDices.get(i);
             dice.roll();
-            moveDiceToRolledDices(dice);
             results[i] = dice;
         }
+        // move all available dices to rolledDices for consistency
+        rolledDices.addAll(availableDices);
+        availableDices.clear();
         return results;
     }
 
-   public void reset() {
+    public void reset() {
         // 1. Bewegt alle in rolledDices befindlichen Würfel zurück in availableDices
         availableDices.addAll(rolledDices);
         rolledDices.clear();
@@ -73,4 +75,5 @@ public class DiceSet {
         availableDices.remove(dice);
         rolledDices.add(dice);
     }
+       
 }

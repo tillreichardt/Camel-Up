@@ -10,11 +10,12 @@ public class Player extends Actor
     private boolean actionCardPlayed;
     private List<BetCard> betCardsForPlayer;
     private List<PyramidCard> pyramidCardsForPlayer;
-    public Player(String name){
-        name = name; 
+    public Player(String pname){
+        this.name = pname; 
         dc = new DesertCard();
         oc = new OasisCard();
         betCardsForPlayer = new ArrayList <>();
+        pyramidCardsForPlayer = new ArrayList <>();
         actionCardPlayed = false;
     }
     
@@ -46,8 +47,12 @@ public class Player extends Actor
         betCardsForPlayer.clear();
     }
     
-    public void setCoins(int coins){
-        this.coins = coins; 
+    public void clearPyramidCards(){
+        pyramidCardsForPlayer.clear();
+    }
+    
+    public void addCoins(int coins){
+        this.coins += coins; 
     }
     
     public void addPyramidCard(PyramidCard pyramidCard){
@@ -56,5 +61,10 @@ public class Player extends Actor
     
     public List<PyramidCard> getAllPyramidCards(){
         return pyramidCardsForPlayer;
+    }
+    
+    @Override 
+    public String toString() {
+        return name;
     }
 }

@@ -119,6 +119,7 @@ public class CamelTrack extends Actor{
         card.setOwner(Owner);
         card.setPlayed(true);
         Owner.setActionCardPlayed(true);
+        getWorld().addObject(card, 0, 0);
         actionCardsOnTrack.add(card);
     }
 
