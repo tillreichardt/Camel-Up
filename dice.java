@@ -1,28 +1,32 @@
 import java.util.Random;
 
-public class Dice{
+public class Dice {
     private String color;
     private Random rand = new Random();
-    private boolean locked;
-    
+    private int value = -1; // Use -1 as a sentinel value to indicate not rolled
+
     public Dice(String pcolor) {
         this.color = pcolor;
     }
 
     public int roll() {
-        System.out.println("Der Würfel mit der Farbe " + color + " wurde gewürfelt");
-        return rand.nextInt(3) + 1; // Generates a random number between 1 and 3
+        if (this.value != -1) {
+            System.out.println("Warning (Dice: " + color + "): Rolled already rolled dice.");
+        }
+        this.value = rand.nextInt(3) + 1;
+        System.out.println("Der Würfel mit der Farbe " + color + " hat eine " + this.value + " geworfen");
+        return this.value;
     }
 
     public String getColor() {
         return color;
     }
-    
-    public void setLocked(boolean value){
-        locked = value;
+
+    public int getValue() {
+        return this.value;
     }
-    
-    public boolean getLocked(){
-        return locked;    
+
+    public void reset() {
+        this.value = -1; // Reset to the sentinel value
     }
 }

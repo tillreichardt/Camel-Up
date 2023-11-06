@@ -1,47 +1,76 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class DiceSet {
-    private Dice[] dices;
+    private List<Dice> availableDices;
+    private List<Dice> rolledDices;
 
     public DiceSet(String[] colors) {
-        dices = new Dice[colors.length];
-        for (int i = 0; i < colors.length; i++) {
-            dices[i] = new Dice(colors[i]);
+        availableDices = new ArrayList<>();
+        rolledDices = new ArrayList<>();
+        for (String color : colors) {
+            availableDices.add(new Dice(color));
         }
-    }
-    
-    public int rollRandomDice() {
-        int randomIndex = new Random().nextInt(dices.length);
-        if (!dices[randomIndex].getLocked()){
-            dices[randomIndex].setLocked(true);
-            return dices[randomIndex].roll();
-        }
-        else {
-            System.out.println("Dieser Würfel wurde bereits gewürfelt");
-            return 0;
-        }
-    }
-    
-    public int rollDiceByColor(String color) { // zum debuggen 
-        for (Dice dice : dices) {
-            if(!dice.getLocked()){
-                if (dice.getColor().equals(color)) {
-                    dice.setLocked(true);
-                    return dice.roll();
-                }
-            } else {
-                System.out.println("Dieser Würfel wurde bereits gewürfelt");
-            }
-        }
-        System.out.println("Dieser Würfelfarbe wurde nicht gefunden");
-        return -1; // Color not found
     }
 
-    public int[] rollAllDices() {
-        int[] results = new int[dices.length];
-        for (int i = 0; i < dices.length; i++) {
-            results[i] = dices[i].roll();
+    public Dice rollDiceByColor(String color) {
+        for (Dice dice : availableDices) {
+            if (dice.getColor().equals(color)) {
+                dice.roll();
+                moveDiceToRolledDices(dice);
+                return dice;
+            }
+        }
+
+        for (Dice dice : rolledDices) {
+            if (dice.getColor().equals(color)) {
+                System.out.println("Dieser Würfel mit der Farbe '" + color + "' wurde bereits geworfen");
+                return null;
+            }
+        }
+
+        System.out.println("Dieser Würfel mit der Farbe '" + color + "' existiert nicht");
+        return null;
+    }
+
+    public Dice rollRandomDice() {
+        if (availableDices.isEmpty()) {
+            System.out.println("Es gibt keine verfügbaren Würfel mehr.");
+            return null;
+        }
+
+        int randomIndex = new Random().nextInt(availableDices.size());
+        Dice randomDice = availableDices.get(randomIndex);
+        randomDice.roll();
+        moveDiceToRolledDices(randomDice);
+        return randomDice;
+    }
+
+    public Dice[] rollAllDices() {
+        Dice[] results = new Dice[availableDices.size()];
+        for (int i = 0; i < availableDices.size(); i++) {
+            Dice dice = availableDices.get(i);
+            dice.roll();
+            moveDiceToRolledDices(dice);
+            results[i] = dice;
         }
         return results;
+    }
+
+   public void reset() {
+        // 1. Bewegt alle in rolledDices befindlichen Würfel zurück in availableDices
+        availableDices.addAll(rolledDices);
+        rolledDices.clear();
+
+        // 2. Setzt den Zustand jedes Würfels zurück
+        for (Dice dice : availableDices) {
+            dice.reset();
+        }
+    }
+
+    private void moveDiceToRolledDices(Dice dice) {
+        availableDices.remove(dice);
+        rolledDices.add(dice);
     }
 }

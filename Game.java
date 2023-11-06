@@ -100,8 +100,7 @@ public class Game extends World {
                     
                 case 3:
                     activePlayer.addPyramidCard(pyramidCards.usePyramidCard());
-                    int randomIndex = new Random().nextInt(CAMEL_COLORS.length);
-                    rennBahn.moveCamel(CAMEL_COLORS[randomIndex], dicersSet.rollDiceByColor(CAMEL_COLORS[randomIndex]));
+                    rennBahn.moveCamel(dicersSet.rollRandomDice().getColor(), dicersSet.rollRandomDice().getValue());
                     break;
                 case 4:
                     //work in progress
