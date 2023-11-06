@@ -1,35 +1,28 @@
-import greenfoot.*; 
 import java.util.Random;
 
-public class Dice extends Actor{
-    private int randomNumber;
-    private String color; 
-    private boolean used;
-    Random rand = new Random();
+public class Dice{
+    private String color;
+    private Random rand = new Random();
+    private boolean locked;
     
-    public Dice(String pColor){
-        used = false;
-        color = pColor;
+    public Dice(String pcolor) {
+        this.color = pcolor;
     }
-    
-    public int roll(){
-        if (used == false){
-            randomNumber = rand.nextInt(3) + 1;
-            System.out.println("You threw a " + randomNumber);
-            return randomNumber; 
-        }
-        return 0;
+
+    public int roll() {
+        System.out.println("Der Würfel mit der Farbe " + color + " wurde gewürfelt");
+        return rand.nextInt(3) + 1; // Generates a random number between 1 and 3
     }
-    
-    public void setUsed(boolean value){
-        used = value;
-    }
-    
-    public boolean getUsed(){
-        return used;
-    }
-    
-    public String getColor(){
+
+    public String getColor() {
         return color;
+    }
+    
+    public void setLocked(boolean value){
+        locked = value;
+    }
+    
+    public boolean getLocked(){
+        return locked;    
     }
 }

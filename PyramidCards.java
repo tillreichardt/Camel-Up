@@ -10,13 +10,13 @@ public class PyramidCards extends Actor{
         cards.push(new PyramidCard());
     }
     
-    public void usePyramidCard(Player player){
+    public PyramidCard usePyramidCard(){
         if (!cards.isEmpty()) {
-            PyramidCard card = cards.pop();
-            card.setPlayer(player);
-            System.out.println(player + " hat eine Pyramiden Karte benutzt und es wurde gewürfelt.");
+            System.out.println("Es wurde eine Pyramiden Karte benutzt und es wurde gewürfelt.");
+            return cards.pop();
         } else {
             System.out.println("Keine Karten mehr vorhanden.");
+            return null;
         }
     }
     

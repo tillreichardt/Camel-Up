@@ -14,33 +14,28 @@ public class Game extends World {
 
     private Player[] players;
     private PyramidCards pyramidCards = new PyramidCards();
-    private Dice[] dicers = new Dice[ALL_STACK_SIZE];
+    private DiceSet dicersSet = new DiceSet(CAMEL_COLORS);
     private BetCards betCards = new BetCards();
     public Game(int numberOfPlayers){
         super (18*GRID_SIZE, 18*GRID_SIZE, 1);
         gameEnded = false; 
         etappeEnded = false;
-        
-       
+
         setup(numberOfPlayers);        
     }
 
     private void setup(int numberOfPlayers){
         rennBahn = new CamelTrack();
         addObject(rennBahn, 450, 775);
-        
+
         dc = new DesertCard();
         addObject(dc, 0, 0);
         oc = new OasisCard();
         addObject(oc, 0, 0);
 
-        for (int i = 0; i < 5; i++){
-            dicers[i] = new Dice(CAMEL_COLORS[i]);
-        }
-        
         players = new Player[numberOfPlayers];
         String[] mustHaveNames = {"CockInspector" , "LongSchlongJohnson", "NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
-        
+
         if (numberOfPlayers <= 8){
             for (int i = 0; i < numberOfPlayers; i++) {
                 players[i] = new Player(mustHaveNames[i]);
@@ -69,14 +64,51 @@ public class Game extends World {
     // case 3: würfeln und usePCard nach etappen ende wieder voll 
     // case 4: Olle Tolle Camel, when gameEnded = true
     public void act(){
-        
+        // Idee: Spieler gibt 1 - 4 in der Konsole an und 
         for (int i = 0; i < players.length; i++){
             Player activePlayer = players[i];
             Scanner scan = new Scanner(System.in);
             int response = scan.nextInt();
             switch(response){
                 case 1: 
-                    activePlayer.addBetCard(drawBetCard(color));
+                    System.out.println("Auf welches Kamel wettest du? Gib eine Farbe an!");
+                    String pColor = scan.nextLine();
+                    activePlayer.addBetCard(betCards.drawBetCard(pColor));
+                    break;
+                    
+                case 2: 
+                    System.out.println("Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?");
+                    String actionCard = scan.nextLine();
+                    System.out.println("Auf welche Position soll diese ActionCard?");
+                    int pPosition = scan.nextInt();
+
+                    if (actionCard.equals("dc") || actionCard.equals("oc")) {
+                        if (!activePlayer.getActionCardPlayed()){
+                            if (actionCard.equals("dc")) {
+                                rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
+                            } else if (actionCard.equals("oc")) {
+                                rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
+                            }
+                        }
+                        else {
+                            System.out.println("Du hast bereits eine ActionCard gespielt, wähle eine andere Option");
+                        }
+                    } else {
+                        System.out.println("Ungültige Eingabe für die ActionCard. Bitte wähle dc oder oc.");
+                    }
+                    break;
+                    
+                case 3:
+                    activePlayer.addPyramidCard(pyramidCards.usePyramidCard());
+                    int randomIndex = new Random().nextInt(CAMEL_COLORS.length);
+                    rennBahn.moveCamel(CAMEL_COLORS[randomIndex], dicersSet.rollDiceByColor(CAMEL_COLORS[randomIndex]));
+                    break;
+                case 4:
+                    //work in progress
+                    break; 
+                default:
+                    System.out.println("Ungültige Auswahl. Bitte wähle 1 oder 2.");
+                    break;
             }
         }
     }
@@ -113,12 +145,14 @@ public class Game extends World {
         }
     }
 
-    public void stageEvalutation(){
-        for (int i = 0  
-    }
-    
+    // public void stageEvalutation(){
+    // for (int i = 0; 
+    // }
 
-    
+    public void startStage(){
+
+    }
+
     public void playerMoveToDo(){
 
     }
