@@ -59,7 +59,6 @@ public class CamelTrack extends Actor{
 
             actionCardsOnTrack.get(i).setLocation((int)x, (int)y);
         }
-        printCamels();
     }
 
     public List<Camel> getCamelSorted(){
@@ -121,6 +120,7 @@ public class CamelTrack extends Actor{
         Owner.setActionCardPlayed(true);
         getWorld().addObject(card, 0, 0);
         actionCardsOnTrack.add(card);
+        updateBoard();
     }
 
     public ActionCard getActionCardAtPosition(int position){

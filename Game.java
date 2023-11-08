@@ -37,14 +37,17 @@ public class Game extends World {
         String[] mustHaveNames = {"CockInspector" , "LongSchlongJohnson", "NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
 
         if (numberOfPlayers <= 8){
+            System.out.println("\n\n");
             for (int i = 0; i < numberOfPlayers; i++) {
                 players[i] = new Player(mustHaveNames[i]);
                 System.out.println(mustHaveNames[i] + " ist dem Spiel beigetreten");
             }
+            System.out.println("\n\n");
         }
         else {
             System.out.println("Du kannst maximal nur 8 Spieler haben");
         }
+        
         rennBahn.addCamelsToBoard();
 
         startGame();
@@ -58,8 +61,69 @@ public class Game extends World {
     // case 3: würfeln und usePCard nach etappen ende wieder voll 
     // case 4: Olle Tolle Camel, when gameEnded = true
     public void act(){
-        // Idee: Spieler gibt 1 - 4 in der Konsole an und 
-        GameLoop();
+
+        Scanner scan = new Scanner(System.in);
+        if (!isStageEnded()) {
+            for (int i = 0; i < players.length; i++){
+
+                Player activePlayer = players[i];
+                int response = (int) getUserInput(scan, "\n" + activePlayer + " gib eine Option (1 - 4) ein: ");
+                System.out.println(response);
+
+                switch(response){
+                    case 1:
+                        String pColor = (String) getUserInput(scan, "Auf welches Kamel wettest du? Farbe: ");
+                        activePlayer.addBetCard(betCards.drawBetCard(pColor));
+                        break;
+
+                    case 2: 
+                        String actionCard = (String) getUserInput(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?: ");
+                        int pPosition = (int) getUserInput(scan, "Auf welche Position soll diese ActionCard?: ");
+
+                        if (actionCard.equals("dc") || actionCard.equals("oc")) {
+                            if (!activePlayer.getActionCardPlayed()){
+                                if (actionCard.equals("dc")) {
+                                    rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
+                                    Greenfoot.delay(1);
+                                } else if (actionCard.equals("oc")) {
+                                    rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
+                                    Greenfoot.delay(1);
+                                }
+                            }
+                            else {
+                                System.out.println("Du hast bereits eine ActionCard gespielt, wähle eine andere Option");
+                            }
+                        } else {
+                            System.out.println("Ungültige Eingabe für die ActionCard. Bitte wähle 'dc' oder 'oc'.");
+                        }
+                        break;
+
+                    case 3:
+
+                        activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
+                        Dice dice = dicersSet.rollRandomDice();
+                        rennBahn.moveCamel(dice.getColor(), dice.getValue());
+                        Greenfoot.delay(1);
+                        amoutOfPyramidCards--;
+                        System.out.println("Es gibt noch "+ amoutOfPyramidCards  + " Pyramiden Karten");
+                        break;
+                    case 4:
+                        //work in progress
+                        break; 
+                    case 5: 
+                        Greenfoot.stop();
+                        break; 
+                    default:
+                        System.out.println("Ungültige Auswahl. Bitte wähle 1 oder 5.");
+                        break;
+                }
+                if (isStageEnded()) {
+                    break; // Exit the for-loop immediately
+                }
+            } 
+        } else {
+            System.out.println("Die Etappe ist vorbei");
+        }
     }
 
     public void GameLoop(){
@@ -79,7 +143,7 @@ public class Game extends World {
                     case 2: 
                         String actionCard = (String) getUserInput(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?");
                         int pPosition = (int) getUserInput(scan, "Auf welche Position soll diese ActionCard?");
-                    
+
                         if (actionCard.equals("dc") || actionCard.equals("oc")) {
                             if (!activePlayer.getActionCardPlayed()){
                                 if (actionCard.equals("dc")) {
@@ -101,6 +165,7 @@ public class Game extends World {
                         activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
                         Dice dice = dicersSet.rollRandomDice();
                         rennBahn.moveCamel(dice.getColor(), dice.getValue());
+
                         amoutOfPyramidCards--;
                         System.out.println("Es gibt noch "+ amoutOfPyramidCards  + " Pyramiden Karten");
 
