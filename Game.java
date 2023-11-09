@@ -28,15 +28,15 @@ public class Game extends World {
 
     private void setup(/*int numberOfPlayers*/){
 
-        int numberOfPlayers = 8;
+        int numberOfPlayers = 6;
 
         dc = new DesertCard();
         oc = new OasisCard();
 
         players = new Player[numberOfPlayers];
-        String[] mustHaveNames = {"CockInspector" , "LongSchlongJohnson", "NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
+        String[] mustHaveNames = {"NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
 
-        if (numberOfPlayers <= 8){
+        if (numberOfPlayers <= 6){
             System.out.println("\n\n");
             for (int i = 0; i < numberOfPlayers; i++) {
                 players[i] = new Player(mustHaveNames[i]);
@@ -47,7 +47,7 @@ public class Game extends World {
         else {
             System.out.println("Du kannst maximal nur 8 Spieler haben");
         }
-        
+
         rennBahn.addCamelsToBoard();
 
         startGame();
@@ -61,7 +61,6 @@ public class Game extends World {
     // case 3: würfeln und usePCard nach etappen ende wieder voll 
     // case 4: Olle Tolle Camel, when gameEnded = true
     public void act(){
-
         Scanner scan = new Scanner(System.in);
         if (!isStageEnded()) {
             for (int i = 0; i < players.length; i++){
@@ -74,115 +73,58 @@ public class Game extends World {
                     case 1:
                         String pColor = (String) getUserInput(scan, "Auf welches Kamel wettest du? Farbe: ");
                         activePlayer.addBetCard(betCards.drawBetCard(pColor));
+                        System.out.println(activePlayer + " hat folgende BetCards: " + activePlayer.getAllBetCards());
                         break;
 
-                    case 2: 
+                    case 2:
                         String actionCard = (String) getUserInput(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?: ");
                         int pPosition = (int) getUserInput(scan, "Auf welche Position soll diese ActionCard?: ");
 
-                        if (actionCard.equals("dc") || actionCard.equals("oc")) {
-                            if (!activePlayer.getActionCardPlayed()){
-                                if (actionCard.equals("dc")) {
-                                    rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
-                                    Greenfoot.delay(1);
-                                } else if (actionCard.equals("oc")) {
-                                    rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
-                                    Greenfoot.delay(1);
-                                }
-                            }
-                            else {
-                                System.out.println("Du hast bereits eine ActionCard gespielt, wähle eine andere Option");
-                            }
-                        } else {
+                        // Prüfe auf ungültige Eingabe
+                        if (!actionCard.equals("dc") && !actionCard.equals("oc")) {
                             System.out.println("Ungültige Eingabe für die ActionCard. Bitte wähle 'dc' oder 'oc'.");
+                            break;
                         }
+
+                        // Prüfe, ob der Spieler bereits eine ActionCard gespielt hat
+                        if (activePlayer.getActionCardPlayed()) {
+                            System.out.println("Du hast bereits eine ActionCard gespielt, wähle eine andere Option");
+                            break;
+                        }
+
+                        // Führe die Aktion für die entsprechende Karte aus
+                        if (actionCard.equals("dc")) {
+                            rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
+                        } else { // actionCard.equals("oc")
+                            rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
+                        }
+                        Greenfoot.delay(1);
+
                         break;
 
                     case 3:
-
                         activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
                         Dice dice = dicersSet.rollRandomDice();
                         rennBahn.moveCamel(dice.getColor(), dice.getValue());
-                        Greenfoot.delay(1);
                         amoutOfPyramidCards--;
                         System.out.println("Es gibt noch "+ amoutOfPyramidCards  + " Pyramiden Karten");
+                        Greenfoot.delay(1);
                         break;
                     case 4:
                         //work in progress
                         break; 
                     case 5: 
-                        Greenfoot.stop();
+                        rennBahn.removeActionCardsOnTrack();
                         break; 
                     default:
                         System.out.println("Ungültige Auswahl. Bitte wähle 1 oder 5.");
                         break;
                 }
                 if (isStageEnded()) {
-                    break; // Exit the for-loop immediately
+                    System.out.println("Die Etappe ist vorbei");
+                    break; // Exit the for-loop immediately | --> return would exit the entire methode 
                 }
             } 
-        } else {
-            System.out.println("Die Etappe ist vorbei");
-        }
-    }
-
-    public void GameLoop(){
-        Scanner scan = new Scanner(System.in);
-        for (int i = 0; i < players.length; i++){
-
-            Player activePlayer = players[i];
-            int response = (int) getUserInput(scan, activePlayer + " gib eine Option (1 - 4) ein: ");
-            System.out.println(response);
-            if (!isStageEnded()){
-                switch(response){
-                    case 1:
-                        String pColor = (String) getUserInput(scan, "Auf welches Kamel wettest du? Farbe: ");
-                        activePlayer.addBetCard(betCards.drawBetCard(pColor));
-                        break;
-
-                    case 2: 
-                        String actionCard = (String) getUserInput(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?");
-                        int pPosition = (int) getUserInput(scan, "Auf welche Position soll diese ActionCard?");
-
-                        if (actionCard.equals("dc") || actionCard.equals("oc")) {
-                            if (!activePlayer.getActionCardPlayed()){
-                                if (actionCard.equals("dc")) {
-                                    rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
-                                } else if (actionCard.equals("oc")) {
-                                    rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
-                                }
-                            }
-                            else {
-                                System.out.println("Du hast bereits eine ActionCard gespielt, wähle eine andere Option");
-                            }
-                        } else {
-                            System.out.println("Ungültige Eingabe für die ActionCard. Bitte wähle dc oder oc.");
-                        }
-                        break;
-
-                    case 3:
-
-                        activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
-                        Dice dice = dicersSet.rollRandomDice();
-                        rennBahn.moveCamel(dice.getColor(), dice.getValue());
-
-                        amoutOfPyramidCards--;
-                        System.out.println("Es gibt noch "+ amoutOfPyramidCards  + " Pyramiden Karten");
-
-                        break;
-                    case 4:
-                        //work in progress
-                        break; 
-                    case 5: 
-                        Greenfoot.stop();
-                        break; 
-                    default:
-                        System.out.println("Ungültige Auswahl. Bitte wähle 1 oder 5.");
-                        break;
-                }
-            } else {
-                System.out.println("Die Etappe ist vorbei");
-            }
         }
     }
 

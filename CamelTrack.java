@@ -11,7 +11,14 @@ public class CamelTrack extends Actor{
     public CamelTrack() {
 
     }
-
+    
+    public void removeActionCardsOnTrack(){
+        for (ActionCard ac : actionCardsOnTrack){
+            ac.removeActionCard(ac);
+        }
+        updateBoard();
+    }
+    
     public void moveCamel(String camelColor, int steps) {
         Camel camelToMove = getCamelByColor(camelColor);
         camelToMove.dropSelf();

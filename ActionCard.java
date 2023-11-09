@@ -31,6 +31,10 @@ public class ActionCard extends Card {
         return this.positionOnTrack;
     }
     
+    public void removeActionCard(ActionCard actioncard){
+        getWorld().removeObject(actioncard);
+    }
+    
     public void setPositionOnTrack(int pos){
         positionOnTrack = pos;
     }
