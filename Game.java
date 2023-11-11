@@ -3,25 +3,21 @@ import java.util.*;
 public class Game extends World {
     private static final int GRID_SIZE = 50;
     private String[] camelColors = {"white", "green", "blue", "yellow", "orange"};
-
+    
     private boolean gameEnded;  
     private boolean etappeEnded; 
 
-    private CamelTrack rennBahn;
-
-    private DesertCard dc;
-    private OasisCard oc;
+    private CamelTrack rennBahn = new CamelTrack();;
 
     private int amoutOfPyramidCards = 5;
     private Player[] players;
     private PyramidCards pyramidCards = new PyramidCards();
     private DiceSet dicersSet = new DiceSet(camelColors);
     private BetCards betCards = new BetCards();
+    private List<Bet> endGameBets = new ArrayList<>();
+    private Map<String, int[]> camelBetCounts = new HashMap<>();
     public Game(/*int numberOfPlayers*/){
         super (18*GRID_SIZE, 18*GRID_SIZE, 1);
-        gameEnded = false; 
-        etappeEnded = false;
-        rennBahn = new CamelTrack();
         addObject(rennBahn, 450, 775);
         setup(/*numberOfPlayers*/);
     }
@@ -30,8 +26,6 @@ public class Game extends World {
 
         int numberOfPlayers = 6;
 
-        dc = new DesertCard();
-        oc = new OasisCard();
 
         players = new Player[numberOfPlayers];
         String[] mustHaveNames = {"NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
@@ -104,15 +98,27 @@ public class Game extends World {
 
                     case 3:
                         activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
-                        Dice dice = dicersSet.rollRandomDice();
+                        
+                        Dice dice = dicersSet.rollRandomDice(); // sonst wird die Methode rollRandomDice() zweimal ausgeführt
+                        
                         rennBahn.moveCamel(dice.getColor(), dice.getValue());
+                        
                         amoutOfPyramidCards--;
+                        
                         System.out.println("Es gibt noch "+ amoutOfPyramidCards  + " Pyramiden Karten");
+                        
                         Greenfoot.delay(1);
+                        
                         break;
+                        
                     case 4:
-                        //work in progress
-                        break; 
+                        
+                        String pppColor = (String) getUserInput(scan, "choose a camel color to bet on: ");
+
+                        makeEndGameBet(activePlayer, pppColor);
+
+                        break;
+
                     case 5: 
                         rennBahn.removeActionCardsOnTrack();
                         break; 
@@ -122,12 +128,52 @@ public class Game extends World {
                 }
                 if (isStageEnded()) {
                     System.out.println("Die Etappe ist vorbei");
-                    break; // Exit the for-loop immediately | --> return would exit the entire methode 
+                    break; // Exit the for-loop immediately | --> return would exit the entire methode | although I know that Mr. Kreili does not like that lol 
                 }
             } 
         }
     }
+    
+    public void makeEndGameBet(Player player, String camelColor) {
+        int[] betCounts = camelBetCounts.getOrDefault(camelColor, new int[2]);
 
+        // Determine the position for the bet
+        String position = betCounts[0] <= betCounts[1] ? "first" : "last";
+        betCounts[position.equals("first") ? 0 : 1]++;
+        camelBetCounts.put(camelColor, betCounts);
+                                
+        // Check if player already placed a bet on this camel
+        for (Bet bet : endGameBets) {
+            if (bet.getPlayer().equals(player) && bet.getCamelColor().equals(camelColor)) {
+                System.out.println("You have already placed a bet on " + camelColor);
+                return;
+            }
+        }
+
+        Bet newBet = new Bet(player, camelColor, position, endGameBets.size() + 1);
+        endGameBets.add(newBet);
+        System.out.println(player.getName() + " has placed a bet on " + camelColor + " for " + position + " place.");
+    }
+   
+    public void evaluateEndGameBets() {
+        List<Camel> sortedCamels = rennBahn.getCamelSorted();
+        Camel firstPlaceCamel = sortedCamels.get(0);
+        Camel lastPlaceCamel = sortedCamels.get(sortedCamels.size() - 1);
+        int[] rewards = {8, 5, 3, 2, 1};
+        int rewardIndex = 0;
+        for (Bet bet : endGameBets) {
+            boolean isCorrectBet = (bet.getPosition().equals("first") && bet.getCamelColor().equals(firstPlaceCamel.getColor())) ||
+                (bet.getPosition().equals("last") && bet.getCamelColor().equals(lastPlaceCamel.getColor()));
+
+            if (isCorrectBet) {
+                int reward = rewardIndex < rewards.length ? rewards[rewardIndex++] : 1;
+                bet.getPlayer().updateCoins(reward);
+            } else {
+                bet.getPlayer().updateCoins(-1);
+            }
+        }
+    }
+    
     public void resetAmoutOfPyramidCards(){
         amoutOfPyramidCards = 5;
     }
@@ -149,11 +195,7 @@ public class Game extends World {
     }
 
     public void moveWhite(){
-        rennBahn.moveCamel("white", 2);
-    }
-
-    public void print(){
-        System.out.println(rennBahn.getCamelSorted());
+        rennBahn.moveCamel("white", 1);
     }
 
     public boolean isStageEnded(){

@@ -16,54 +16,60 @@ public class Player extends Actor
         oc = new OasisCard();
         betCardsForPlayer = new ArrayList <>();
         pyramidCardsForPlayer = new ArrayList <>();
-        actionCardPlayed = false;
     }
-    
-    public void setActionCardPlayed(boolean value){
-        actionCardPlayed = value;
-    }
-    
-    public OasisCard getOasisCard(){
-        return oc;
-    }
-    
-    public DesertCard getDesertCard(){
-        return dc;
-    }
-    
-    public boolean getActionCardPlayed(){
-        return actionCardPlayed;
-    }
-    
-    public void addBetCard(BetCard pBetcard){
-        betCardsForPlayer.add(pBetcard);
-    }   
-    
-    public List<BetCard> getAllBetCards(){
-        return betCardsForPlayer; 
-    }
-    
+
+    // clearersss 
     public void clearBetCards(){
         betCardsForPlayer.clear();
     }
-    
+
     public void clearPyramidCards(){
         pyramidCardsForPlayer.clear();
     }
-    
-    public void addCoins(int coins){
+
+    // sedders
+    public void updateCoins(int coins){
         this.coins += coins; 
     }
-    
+
     public void addPyramidCard(PyramidCard pyramidCard){
         pyramidCardsForPlayer.add(pyramidCard);
     }
-    
+
+    public void addBetCard(BetCard pBetcard){
+        betCardsForPlayer.add(pBetcard);
+    }  
+
+    public void setActionCardPlayed(boolean value){
+        actionCardPlayed = value;
+    }
+
+    // gedders
+    public List<BetCard> getAllBetCards(){
+        return betCardsForPlayer; 
+    }
+
     public List<PyramidCard> getAllPyramidCards(){
         return pyramidCardsForPlayer;
     }
-    
-    @Override 
+
+    public OasisCard getOasisCard(){
+        return oc;
+    }
+
+    public DesertCard getDesertCard(){
+        return dc;
+    }
+
+    public boolean getActionCardPlayed(){
+        return actionCardPlayed;
+    }
+
+    public String getName(){
+        return name; 
+    }
+
+    @Override // ist richtig lost, lieber mit .getName() oder so 
     public String toString() {
         return name;
     }
