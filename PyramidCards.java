@@ -4,12 +4,12 @@ public class PyramidCards{
     
     public PyramidCards(){
         cards = new Stack<>();
-        this.reset();
+        this.resetPyramidCards();
     }
     
-    public void reset(){
+    public void resetPyramidCards(){
         cards.clear();
-        for (int i = 0; i <= 5; i++){
+        for (int i = 0; i < 5; i++){
             this.cards.push(new PyramidCard());
         }
     }
@@ -22,5 +22,9 @@ public class PyramidCards{
             System.out.println("Keine Karten mehr vorhanden.");
             return null;
         }
+    }
+    
+    public int getSize(){
+        return cards.size();
     }
 }

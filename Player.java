@@ -10,12 +10,15 @@ public class Player extends Actor
     private boolean actionCardPlayed;
     private List<BetCard> betCardsForPlayer;
     private List<PyramidCard> pyramidCardsForPlayer;
+    private List<EndBetCard> endBetCardsForPlayer;
     public Player(String pname){
         this.name = pname; 
         dc = new DesertCard();
         oc = new OasisCard();
         betCardsForPlayer = new ArrayList <>();
         pyramidCardsForPlayer = new ArrayList <>();
+        endBetCardsForPlayer = new ArrayList <>();
+        resetEndBetCards();
     }
 
     // clearersss 
@@ -26,9 +29,16 @@ public class Player extends Actor
     public void clearPyramidCards(){
         pyramidCardsForPlayer.clear();
     }
+    
+    public void resetEndBetCards(){
+        endBetCardsForPlayer.clear();
+        for(String color : Game.CAMEL_COLORS){
+            endBetCardsForPlayer.add(new EndBetCard(this, color));
+        }
+    }
 
     // sedders
-    public void updateCoins(int coins){
+    public void addCoins(int coins){
         this.coins += coins; 
     }
 
@@ -52,7 +62,11 @@ public class Player extends Actor
     public List<PyramidCard> getAllPyramidCards(){
         return pyramidCardsForPlayer;
     }
-
+    
+    public List<EndBetCard> getEndBetCardsForPlayer(){
+        return endBetCardsForPlayer;
+    }
+    
     public OasisCard getOasisCard(){
         return oc;
     }
@@ -68,7 +82,35 @@ public class Player extends Actor
     public String getName(){
         return name; 
     }
-
+    
+    public int getCoins(){
+        return coins;
+    }
+    
+    public int getEndBetsCardsSize(){
+        return endBetCardsForPlayer.size();
+    }
+    
+    public EndBetCard getEndBetsCard(String color){
+        if (!(getEndBetsCardsSize() == 0)){
+            System.out.println(name + " hat keine EndBetCards mehr.");
+            return null;
+        }
+        for (EndBetCard endbetcard : endBetCardsForPlayer){
+            if (endbetcard.getColor().equals(color)){
+                EndBetCard result = endbetcard;
+                endBetCardsForPlayer.remove(endbetcard);
+                return result;
+            }
+        }
+        System.out.println("Die Farbe wurde nicht gefunden");
+        return null; 
+    }
+    
+    public void printAvailableEndBetCards(){
+        System.out.println(endBetCardsForPlayer);
+    }
+    
     @Override // ist richtig lost, lieber mit .getName() oder so 
     public String toString() {
         return name;

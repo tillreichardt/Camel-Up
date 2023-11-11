@@ -1,23 +1,21 @@
 import java.util.*;
 
 public class BetCards {
-    private static final String[] CAMEL_COLORS = {"white", "green", "blue", "yellow", "orange"};
     private List<Stack<BetCard>> betCardList;
 
     public BetCards(){
-        betCardList = new ArrayList<>(CAMEL_COLORS.length);
+        betCardList = new ArrayList<>(Game.CAMEL_COLORS.length);
         resetBetCardList(); // damit man kein duplicate Code hat
     }
 
     public BetCard drawBetCard(String color){
-    for (int i = 0; i < betCardList.size(); i++){
-        if (betCardList.get(i).peek().getColor().equals(color)){
-            return betCardList.get(i).pop();
+        for (int i = 0; i < betCardList.size(); i++){
+            if (betCardList.get(i).peek().getColor().equals(color)){
+                return betCardList.get(i).pop();
+            }
         }
+        return null;
     }
-    return null;
-}
-
 
     public void resetBetCardList(){
         betCardList.clear();
@@ -25,7 +23,7 @@ public class BetCards {
         punkteMap.put(2, 1);
 
         // Erstellen Sie zuerst die Stacks für jede Farbe
-        for (String color : CAMEL_COLORS) {
+        for (String color : Game.CAMEL_COLORS) {
             Stack<BetCard> stack = new Stack<>();
             punkteMap.put(1, 2);
             stack.push(new BetCard(color, new HashMap<>(punkteMap)));

@@ -60,7 +60,7 @@ public class DiceSet {
         return results;
     }
 
-    public void reset() {
+    public void resetDiceSet() {
         // 1. Bewegt alle in rolledDices befindlichen Würfel zurück in availableDices
         availableDices.addAll(rolledDices);
         rolledDices.clear();

@@ -14,7 +14,7 @@ public class BetCard{
         return color;        
     }        
 
-    public int getPointsForPlacement(int platzierung) {            
+    public int getCoinsForPlacement(int platzierung) {            
         if (punkteMap.containsKey(platzierung)) {                
             return punkteMap.get(platzierung);            
         } else {                
@@ -24,6 +24,6 @@ public class BetCard{
     
     @Override 
     public String toString(){
-        return color + " " + getPointsForPlacement(1);
+        return color + " " + getCoinsForPlacement(1);
     }
 }

@@ -8,7 +8,6 @@ public class ActionCard extends Card {
     protected CamelTrack camelTrack;
     public ActionCard(String name) {
         super(name); // Setzen des Kartentyps beim Erstellen der Karte
-        played = false;
     }
     
     public void activate(Camel camel){

@@ -5,11 +5,11 @@ public class CamelTrack extends Actor{
     private static final int BOARD_ROWS = 5;
 
     private Dice[] dicers;
-    private static final String[] CAMEL_COLORS = {"white", "green", "blue", "yellow", "orange"};
-    private Camel[] camels = new Camel[CAMEL_COLORS.length]; 
+    private Camel[] camels = new Camel[Game.CAMEL_COLORS.length]; 
     private List<ActionCard> actionCardsOnTrack = new ArrayList<>(); // Liste, weil man weißt nicht, wie lange es wird.
-    public CamelTrack() {
-
+    private GameLoopInterface glInterface;
+    public CamelTrack(GameLoopInterface glInterface) {
+        this.glInterface = glInterface; 
     }
     
     public void removeActionCardsOnTrack(){
@@ -29,13 +29,17 @@ public class CamelTrack extends Actor{
         if (camelAtTarget != null){ // Falls targetPosition leer ist, ist highestCamel auch null und dann bekommt man nullPointerExeption
             camelAtTarget.getHighestCamel().carry(camelToMove);
         }
-        camelToMove.move(steps); 
+        camelToMove.move(steps);
+        
         ActionCard cardAtTarget = getActionCardAtPosition(targetPosition);
         // gucken, ob an targetPosition eine SpecialCard liegt
         if (cardAtTarget != null){
             cardAtTarget.activate(camelToMove); 
         }
         updateBoard();
+        if (targetPosition >= 16){
+            glInterface.setGameEnded(true);
+        }
     }
 
     public void updateBoard(){
@@ -97,7 +101,7 @@ public class CamelTrack extends Actor{
 
     public void addActionCard(ActionCard card, int position, Player Owner) {
         if (position < 1 && position > BOARD_COLS-2) {
-            System.out.println("Position befindet sich außerhalb des Definitionsbereiches. (2-16)");
+            System.out.println("Position befindet sich außerhalb des Definitionsbereiches. Muss (2-16)");
             return;
         }
         if (getCamelAtPosition(position) != null){
@@ -149,11 +153,11 @@ public class CamelTrack extends Actor{
         float cellWidth = ownWidth / (float) BOARD_COLS; // Pixel pro Array-Einheit (Breite)
         float cellHeight = ownHeight / (float) BOARD_ROWS; // Pixel pro Array-Einheit (Höhe)
 
-        for (int i = 0; i < CAMEL_COLORS.length; i++){
+        for (int i = 0; i < Game.CAMEL_COLORS.length; i++){
             float x = ownX - ownWidth / 2 + cellWidth / 2;
             float y = ownY - ownHeight / 2 + i * cellHeight + cellHeight / 2;
-            camels[i] = new Camel(CAMEL_COLORS[i], 0);
-            String filename = "images/"+CAMEL_COLORS[i]+".png";
+            camels[i] = new Camel(Game.CAMEL_COLORS[i], 0);
+            String filename = "images/"+Game.CAMEL_COLORS[i]+".png";
             camels[i].setImage(filename);
             getWorld().addObject(camels[i], (int)x, (int)y);
         }

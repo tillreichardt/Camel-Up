@@ -1,32 +1,36 @@
 import greenfoot.*;
 import java.util.*;
-public class Game extends World {
+interface GameLoopInterface{
+    void setGameEnded(boolean value);
+}
+public class Game extends World implements GameLoopInterface{
+    // Konstanten
     private static final int GRID_SIZE = 50;
-    private String[] camelColors = {"white", "green", "blue", "yellow", "orange"};
-    
-    private boolean gameEnded;  
-    private boolean etappeEnded; 
+    private static final int BET_CARD = 1;
+    private static final int ACTION_CARD = 2;
+    private static final int PYRAMID_CARD = 3;
+    private static final int END_GAME_BET = 4;
+    public static final String[] CAMEL_COLORS = {"white", "green", "blue", "yellow", "orange"}; // public und ohne getter, weil eh static final bzw. Konstante also kann man eh nicht ändern -> Datenkapselung. Soll globale Variable sein (ergibt auch Sinn, sonst immer als Parameter übergeben) 
 
-    private CamelTrack rennBahn = new CamelTrack();;
+    private boolean gameEnded;
 
-    private int amoutOfPyramidCards = 5;
+    private CamelTrack rennBahn = new CamelTrack(this);
+
+    private int startPlayer = 0;
     private Player[] players;
     private PyramidCards pyramidCards = new PyramidCards();
-    private DiceSet dicersSet = new DiceSet(camelColors);
+    private DiceSet dicersSet = new DiceSet(CAMEL_COLORS);
     private BetCards betCards = new BetCards();
-    private List<Bet> endGameBets = new ArrayList<>();
-    private Map<String, int[]> camelBetCounts = new HashMap<>();
-    public Game(/*int numberOfPlayers*/){
+    private EndBetCards endBetCards = new EndBetCards();
+    private boolean stageEvaluatedPostGame;
+    public Game(/*int numberOfPlayers*/){ 
         super (18*GRID_SIZE, 18*GRID_SIZE, 1);
         addObject(rennBahn, 450, 775);
         setup(/*numberOfPlayers*/);
     }
 
     private void setup(/*int numberOfPlayers*/){
-
         int numberOfPlayers = 6;
-
-
         players = new Player[numberOfPlayers];
         String[] mustHaveNames = {"NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
 
@@ -47,30 +51,42 @@ public class Game extends World {
         startGame();
 
     }
-    // 4 Möglichkeiten
-    // case 1 - 4; 
-    // aktive player --> Player player Parameter = aktiv player;
-    // case 1: etappen Wettlätchen 
-    // case 2: desertCard nach etappen ende wieder bei spieler
-    // case 3: würfeln und usePCard nach etappen ende wieder voll 
-    // case 4: Olle Tolle Camel, when gameEnded = true
+
     public void act(){
+        // Check if the game has already ended
+        if (gameEnded) {
+            // Perform one last stage evaluation if this is the first call after game end
+            if (!stageEvaluatedPostGame) {
+                stageEvaluation();
+                stageEvaluatedPostGame = true; // Ensure this block doesn't run again
+                System.out.println("\n"+ getWinner() + " hat das Spiel gewonnen!");
+                System.out.println("\nDas Spiel ist vorbei");
+            }
+            return; // Do nothing more if the game has ended
+        }
+
+        // Check if only the stage has ended
+        if (isStageEnded()) {
+
+        }
+        System.out.println(startPlayer);
         Scanner scan = new Scanner(System.in);
-        if (!isStageEnded()) {
-            for (int i = 0; i < players.length; i++){
+        for (int i = 0; !gameEnded && !isStageEnded() && i < players.length; i++){ // Beispiel Etappe vorbei. Spieler 3 letzen Zug, Spieler 4 als nächstes in neuer Etappe 
+            int currentIndex = (startPlayer + i) % players.length;
+            Player activePlayer = players[currentIndex];
+            int response = (int) getUserInput(scan, "\n" + activePlayer + " gib eine Option (1 - 4) ein: ");
+            System.out.println(response);
 
-                Player activePlayer = players[i];
-                int response = (int) getUserInput(scan, "\n" + activePlayer + " gib eine Option (1 - 4) ein: ");
-                System.out.println(response);
-
-                switch(response){
-                    case 1:
+            // advanced switch case (nur ab Java 9) 
+            switch(response){
+                case BET_CARD -> {
                         String pColor = (String) getUserInput(scan, "Auf welches Kamel wettest du? Farbe: ");
                         activePlayer.addBetCard(betCards.drawBetCard(pColor));
                         System.out.println(activePlayer + " hat folgende BetCards: " + activePlayer.getAllBetCards());
-                        break;
 
-                    case 2:
+                    }
+
+                case ACTION_CARD -> {
                         String actionCard = (String) getUserInput(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?: ");
                         int pPosition = (int) getUserInput(scan, "Auf welche Position soll diese ActionCard?: ");
 
@@ -94,112 +110,138 @@ public class Game extends World {
                         }
                         Greenfoot.delay(1);
 
-                        break;
+                    }
 
-                    case 3:
+                case PYRAMID_CARD -> {
                         activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
-                        
                         Dice dice = dicersSet.rollRandomDice(); // sonst wird die Methode rollRandomDice() zweimal ausgeführt
-                        
                         rennBahn.moveCamel(dice.getColor(), dice.getValue());
-                        
-                        amoutOfPyramidCards--;
-                        
-                        System.out.println("Es gibt noch "+ amoutOfPyramidCards  + " Pyramiden Karten");
-                        
+                        System.out.println("Es gibt noch "+ pyramidCards.getSize()  + " Pyramiden Karten");
                         Greenfoot.delay(1);
-                        
-                        break;
-                        
-                    case 4:
-                        
+
+                        if (isStageEnded()) {
+                            System.out.println("Die Etappe ist vorbei");
+                            startPlayer = currentIndex + 1; // Token den Spieler links von uns weiter geben (+1) 
+                            stageEvaluation();
+                            resetStage();
+                        }
+
+                    }
+                case END_GAME_BET -> {
                         String pppColor = (String) getUserInput(scan, "choose a camel color to bet on: ");
+                        String pPosition = (String) getUserInput(scan, "Welche Position denkst du hast das Kamel am Ende des Spiels? (first/last): ");
+                        makeEndGameBet(activePlayer, pppColor, pPosition);
 
-                        makeEndGameBet(activePlayer, pppColor);
+                    }
 
-                        break;
+                case 5 ->  betCards.printBetCardsInBetCardsClass();
 
-                    case 5: 
-                        rennBahn.removeActionCardsOnTrack();
-                        break; 
-                    default:
-                        System.out.println("Ungültige Auswahl. Bitte wähle 1 oder 5.");
-                        break;
-                }
-                if (isStageEnded()) {
-                    System.out.println("Die Etappe ist vorbei");
-                    break; // Exit the for-loop immediately | --> return would exit the entire methode | although I know that Mr. Kreili does not like that lol 
-                }
+                default -> System.out.println("\nUngültige Auswahl. Bitte wähle 1 oder 5.");
             } 
         }
-    }
-    
-    public void makeEndGameBet(Player player, String camelColor) {
-        int[] betCounts = camelBetCounts.getOrDefault(camelColor, new int[2]);
-
-        // Determine the position for the bet
-        String position = betCounts[0] <= betCounts[1] ? "first" : "last";
-        betCounts[position.equals("first") ? 0 : 1]++;
-        camelBetCounts.put(camelColor, betCounts);
-                                
-        // Check if player already placed a bet on this camel
-        for (Bet bet : endGameBets) {
-            if (bet.getPlayer().equals(player) && bet.getCamelColor().equals(camelColor)) {
-                System.out.println("You have already placed a bet on " + camelColor);
-                return;
-            }
-        }
-
-        Bet newBet = new Bet(player, camelColor, position, endGameBets.size() + 1);
-        endGameBets.add(newBet);
-        System.out.println(player.getName() + " has placed a bet on " + camelColor + " for " + position + " place.");
-    }
-   
-    public void evaluateEndGameBets() {
-        List<Camel> sortedCamels = rennBahn.getCamelSorted();
-        Camel firstPlaceCamel = sortedCamels.get(0);
-        Camel lastPlaceCamel = sortedCamels.get(sortedCamels.size() - 1);
-        int[] rewards = {8, 5, 3, 2, 1};
-        int rewardIndex = 0;
-        for (Bet bet : endGameBets) {
-            boolean isCorrectBet = (bet.getPosition().equals("first") && bet.getCamelColor().equals(firstPlaceCamel.getColor())) ||
-                (bet.getPosition().equals("last") && bet.getCamelColor().equals(lastPlaceCamel.getColor()));
-
-            if (isCorrectBet) {
-                int reward = rewardIndex < rewards.length ? rewards[rewardIndex++] : 1;
-                bet.getPlayer().updateCoins(reward);
-            } else {
-                bet.getPlayer().updateCoins(-1);
-            }
-        }
-    }
-    
-    public void resetAmoutOfPyramidCards(){
-        amoutOfPyramidCards = 5;
-    }
-
-    public void moveOrange(){
-        rennBahn.moveCamel("orange", 1);
-    }
-
-    public void moveBlue(){
-        rennBahn.moveCamel("blue", 1);
-    }
-
-    public void moveYellow(){
-        rennBahn.moveCamel("yellow", 1);
-    }
-
-    public void moveGreen(){
-        rennBahn.moveCamel("green", 1);
     }
 
     public void moveWhite(){
         rennBahn.moveCamel("white", 1);
     }
 
+    public void resetStage(){
+        betCards.resetBetCardList();
+        pyramidCards.resetPyramidCards();
+        dicersSet.resetDiceSet();
+        for(Player player : players){
+            player.clearBetCards();
+            player.clearPyramidCards();
+            player.setActionCardPlayed(false);
+        }
+        rennBahn.removeActionCardsOnTrack();
+    }
+
+    public void makeEndGameBet(Player player, String camelColor, String position) {
+        // Überprüfen, ob der Spieler bereits eine Wette auf die Farbe gesetzt hat;
+        if (position.equals("first")){
+            endBetCards.addBetForFirst(player.getEndBetsCard(camelColor));
+            System.out.println(player.getName() + " hat eine Wette auf das Kamel mit der Farbe " + camelColor + " für den " + position + " place gesetzt.");
+        } else if (position.equals("last")) {
+            endBetCards.addBetForLast(player.getEndBetsCard(camelColor));
+            System.out.println(player.getName() + " hat eine Wette auf das Kamel mit der Farbe " + camelColor + " für den " + position + " place gesetzt.");
+        } else {
+            System.out.println("Ungültige Auswahl. Bitte wähle first oder last");
+        }
+    }
+
+    public void evaluateEndGameBets() {
+        if (!gameEnded) return;  // sicherstellen, dass die methode nur nach dem spiel ende ausgeführt wird
+        List<Camel> sortedCamels = rennBahn.getCamelSorted();
+        Camel firstPlaceCamel = sortedCamels.get(0);
+        Camel lastPlaceCamel = sortedCamels.get(sortedCamels.size() - 1);
+
+        HashMap<Integer, Integer> rewardMap = new HashMap<>(); 
+        int[] rewards = {8, 5, 3, 2};
+        for (int i = 0; i < rewards.length; i++){
+            rewardMap.put(i+1, rewards[i]);   
+        } 
+
+        // first camel 
+        int matches = 0; 
+        for (EndBetCard bet : endBetCards.getBetsForFirstCamel()) {
+            String camelColor = bet.getColor();
+            if (camelColor.equals(firstPlaceCamel.getColor())) { // Wette war richtig --> Farbe der Wette stimmt mit der Farbe des ersten Kamels überein
+                int rewardsPoints = rewardMap.containsKey(++matches) ? rewardMap.get(matches) : 1;
+                bet.getPlayer().addCoins(rewardsPoints);
+                System.out.println(bet.getPlayer() + " hat " + rewardsPoints +" Coins erhalten, dafür dass er eine Wette auf das richtige, erste Kamel gesetzt hat.");
+            } else {
+                bet.getPlayer().addCoins(-1);
+                System.out.println(bet.getPlayer() + " hat 1 Coin verloren, dafür dass er eine Wette auf das falsche, erste Kamel gesetzt hat.");
+            }
+        }
+
+        // last camel
+        matches = 0; 
+        for (EndBetCard bet : endBetCards.getBetsForLastCamel()) {
+            String camelColor = bet.getColor();
+            if (camelColor.equals(lastPlaceCamel.getColor())) { // Wette war richtig --> Farbe der Wette stimmt mit der Farbe des ersten Kamels überein
+                int rewardsPoints = rewardMap.containsKey(++matches) ? rewardMap.get(matches) : 1;
+                bet.getPlayer().addCoins(rewardsPoints);
+                System.out.println(bet.getPlayer() + " hat " + rewardsPoints +" Coins erhalten, dafür dass er eine Wette auf das richtige, letzte Kamel gesetzt hat.");
+            } else {
+                bet.getPlayer().addCoins(-1);
+                System.out.println(bet.getPlayer() + " hat 1 Coin verloren, dafür dass er eine Wette auf das falsche, letzte Kamel gesetzt hat.");
+            }
+        }
+    }
+
+    public void stageEvaluation(){
+        System.out.println("\n");
+        List<Camel> sortedCamels = rennBahn.getCamelSorted();
+        Camel firstPlaceCamel = sortedCamels.get(0);
+        Camel lastPlaceCamel = sortedCamels.get(sortedCamels.size() - 1);
+        for (int i = 0; i < players.length; i++){ // durch alle Spieler; 
+            List<BetCard> playerBetCards = players[i].getAllBetCards();
+            for (BetCard betcard : playerBetCards){ // durch alle seine Karten;
+                for (int j = 0; j < sortedCamels.size(); j++){
+                    if (sortedCamels.get(j).getColor().equals(betcard.getColor())){
+                        players[i].addCoins(betcard.getCoinsForPlacement(j+1));
+                        System.out.println(players[i] + " hat " + betcard.getCoinsForPlacement(j+1) + " Coins für die Wette auf das Kamel mit der Farbe " + betcard.getColor() + " erhalten.");
+                    }
+                }
+            }
+            List<PyramidCard> playerPyramidCards = players[i].getAllPyramidCards();
+            for (PyramidCard pyramidcard : playerPyramidCards){
+                players[i].addCoins(pyramidcard.getValue()); 
+                System.out.println(players[i] + " hat " + pyramidcard.getValue() + " Coin erhalten, dafür dass er eine Pyramiden Karte gezogen hat.");
+            }
+            if (!players[i].getActionCardPlayed()){
+                players[i].addCoins(1);
+                System.out.println(players[i] + " hat 1 Coin erhalten, dafür dass er seine ActionCard nicht ausgespielt hat.");
+            }
+        }
+        evaluateEndGameBets();
+        printCoinsValuesOfPlayers();
+    }
+
     public boolean isStageEnded(){
-        if (amoutOfPyramidCards == 0){
+        if (pyramidCards.getSize() == 0){
             return true; 
         } else{
             return false;
@@ -209,14 +251,14 @@ public class Game extends World {
     public void startGame(){
         Dice[] würfel = dicersSet.rollAllAvailableDices();
 
-        for(int i = 0; i < camelColors.length; i++){
+        for(int i = 0; i < CAMEL_COLORS.length; i++){
             if (würfel[i] != null && rennBahn != null) {
                 rennBahn.moveCamel(würfel[i].getColor(), würfel[i].getValue());
             } else {
                 System.out.println("Ein Würfel ist null oder die RennBahn wurde nicht initialisiert.");
             }
         }
-        dicersSet.reset();
+        dicersSet.resetDiceSet();
     }
 
     private Object getUserInput(Scanner scanner, String prompt) {
@@ -229,5 +271,33 @@ public class Game extends World {
         } else {
             return scanner.nextLine();
         }
+    }
+
+    public void printCoinsValuesOfPlayers(){
+        System.out.println("\n");
+        for(int i = 0; i < players.length; i++){
+            System.out.println(players[i] + " hat im Moment " + players[i].getCoins()+ " Coins.");
+        }
+    }
+
+    public Player getWinner() {
+        if (players.length == 0) {
+            return null; // No players in the game
+        }
+
+        Player winner = players[0]; // Start with the first player as a potential winner
+
+        for (int i = 1; i < players.length; i++) {
+            if (players[i].getCoins() > winner.getCoins()) {
+                winner = players[i]; // Update the winner if another player has more coins
+            }
+        }
+
+        return winner; // Return the player with the most coins
+    }
+
+    @Override
+    public void setGameEnded(boolean value){
+        gameEnded = value;
     }
 }

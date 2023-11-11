@@ -101,6 +101,5 @@ public class Camel extends Actor
     @Override 
     public String toString() {
         return color + "; pos = " + positionOnTrack + "; cAbove = " +  camelsAbove() + "; cBelow = " + camelsBelow(); // Dies gibt z.B. "greenCamel" für ein grünes Kamel aus
-
     }
 }
