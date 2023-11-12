@@ -21,6 +21,7 @@ public class CamelTrack extends Actor{
         for (ActionCard ac : actionCardsOnTrack){
             ac.removeActionCard(ac);
         }
+        actionCardsOnTrack.clear();
         updateBoard();
     }
     

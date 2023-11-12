@@ -24,6 +24,7 @@ public class Game extends World implements GameLoopInterface{
     private BetCards betCards;
     private EndBetCards endBetCards;
     private boolean stageEvaluatedPostGame; // automatisch false
+    private Scanner scan = new Scanner(System.in);
     public Game(){ 
         super (18*GRID_SIZE, 5*GRID_SIZE, 1);
         rennBahn = new CamelTrack(this);
@@ -32,18 +33,34 @@ public class Game extends World implements GameLoopInterface{
         betCards = new BetCards();
         endBetCards = new EndBetCards();
         addObject(rennBahn, 450, 125);
-        players = new Player[mustHaveNames.length];
-        for (int i = 0; i < mustHaveNames.length; i++) {
-            players[i] = new Player(mustHaveNames[i]);
-            System.out.println(mustHaveNames[i] + " ist dem Spiel beigetreten");
+        
+        int numberOfPlayers = Integer.parseInt(getInputWithValidation(scan, "Mit wie vielen Spielern möchtest du spielen? (max. 8): ", "[1-8]"));
+        players = new Player[numberOfPlayers];
+        for (int i = 0; i < numberOfPlayers; i++) {
+            String playerName = getInputWithValidation(scan, "Wie soll der " + (i+1) + ". Spieler heißen?: ", "\\S+"); // + bedeutet mindestens ein Character lang 
+            boolean nameAlreadyUsed = false; 
+            for (Player player : players){
+                 if (player != null && player.getName().equals(playerName)){
+                     System.out.println("Der Name ist schon vergeben");
+                     nameAlreadyUsed = true; 
+                     break; 
+                 }
+            }
+            if (nameAlreadyUsed){
+                i--;
+                continue;
+            }
+            players[i] = new Player(playerName);
+            System.out.println(players[i] + " ist dem Spiel beigetreten\n");
         }
         System.out.println("\n\n");
         rennBahn.addCamelsToBoard();
         startGame();
+        Greenfoot.start(); // fürhe die Run methode automatisch aus
     }
     
     public void act(){
-        Scanner scan = new Scanner(System.in);
+        
         for (int i = 0; !gameEnded && !isStageEnded() && i < players.length; i++){ 
             int currentIndex = (startPlayer + i) % players.length; // Beispiel: Etappe vorbei. Spieler 3 letzen Zug, Spieler 4 als nächstes in neuer Etappe 
             Player activePlayer = players[currentIndex];
