@@ -38,8 +38,8 @@ public class Player extends Actor
     }
 
     // sedders
-    public void addCoins(int coins){
-        this.coins += coins; 
+    public void addCoins(int pCoins){
+        this.coins = Math.max(0, this.coins + pCoins);
     }
 
     public void addPyramidCard(PyramidCard pyramidCard){
@@ -92,7 +92,7 @@ public class Player extends Actor
     }
     
     public EndBetCard getEndBetsCard(String color){
-        if (!(getEndBetsCardsSize() == 0)){
+        if (getEndBetsCardsSize() == 0){
             System.out.println(name + " hat keine EndBetCards mehr.");
             return null;
         }
@@ -107,8 +107,8 @@ public class Player extends Actor
         return null; 
     }
     
-    public void printAvailableEndBetCards(){
-        System.out.println(endBetCardsForPlayer);
+    public List<EndBetCard> getAvailableEndBetCards(){
+        return endBetCardsForPlayer;
     }
     
     @Override // ist richtig lost, lieber mit .getName() oder so 

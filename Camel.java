@@ -22,6 +22,14 @@ public class Camel extends Actor
     public void setcamelBelow(Camel camel){
         camelBelow = camel; 
     }
+    
+    public void setPositionOnTrack(int value){
+        if (isCarrying()) {
+            // Wenn das Kamel auf einem anderen Kamel sitzt, bewege beide gemeinsam
+            camelAbove.setPositionOnTrack(value);
+        }
+        this.positionOnTrack = value; 
+    }
 
     // gedders
     public String getColor(){

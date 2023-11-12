@@ -12,6 +12,10 @@ public class CamelTrack extends Actor{
         this.glInterface = glInterface; 
     }
     
+    public int getSizeActionCardsOnTrack(){
+        return actionCardsOnTrack.size();
+    }
+    
     public void removeActionCardsOnTrack(){
         for (ActionCard ac : actionCardsOnTrack){
             ac.removeActionCard(ac);
@@ -36,10 +40,13 @@ public class CamelTrack extends Actor{
         if (cardAtTarget != null){
             cardAtTarget.activate(camelToMove); 
         }
-        updateBoard();
-        if (targetPosition >= 16){
+        
+        
+        if (targetPosition > BOARD_COLS-2){
+            camelToMove.setPositionOnTrack(BOARD_COLS-1);
             glInterface.setGameEnded(true);
         }
+        updateBoard();
     }
 
     public void updateBoard(){
@@ -74,7 +81,7 @@ public class CamelTrack extends Actor{
 
     public List<Camel> getCamelSorted(){
         List<Camel> sortedCamels = new ArrayList<>();
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < camels.length; i++){
             sortedCamels.add(camels[i]);
         }
         sortedCamels.sort(new Comparator<Camel>() {
@@ -99,30 +106,30 @@ public class CamelTrack extends Actor{
         return sortedCamels;
     }
 
-    public void addActionCard(ActionCard card, int position, Player Owner) {
+    public boolean addActionCard(ActionCard card, int position, Player Owner) {
         if (position < 1 && position > BOARD_COLS-2) {
             System.out.println("Position befindet sich außerhalb des Definitionsbereiches. Muss (2-16)");
-            return;
+            return false;
         }
         if (getCamelAtPosition(position) != null){
             System.out.println("Auf der Position befindet sich bereits ein Camel");
-            return;
+            return false;
         } 
         if (getCamelAtPosition(position-1) != null && getCamelAtPosition(position+1) != null){
             System.out.println("Du darfst keine Karte unmittelbar vor und nach einem Camel platzieren.");
-            return;
+            return false;
         } 
         if (getActionCardAtPosition(position) != null){
             System.out.println("Auf der Position befindet sich bereits eine ActionCard");
-            return;
+            return false;
         }
         if (getActionCardAtPosition(position-1) != null && getActionCardAtPosition(position+1) != null){
             System.out.println("Du darfst keine Karte unmittelbar vor und nach einer ActionCard platzieren.");
-            return;
+            return false;
         }
         if (Owner.getActionCardPlayed() == true){
             System.out.println("Du hast bereits deine ActionCard benutzt"); 
-            return; 
+            return false; 
         }
         card.setCamelTrack(this);
         card.setPositionOnTrack(position);
@@ -132,6 +139,7 @@ public class CamelTrack extends Actor{
         getWorld().addObject(card, 0, 0);
         actionCardsOnTrack.add(card);
         updateBoard();
+        return true; 
     }
 
     public ActionCard getActionCardAtPosition(int position){
@@ -169,6 +177,7 @@ public class CamelTrack extends Actor{
         for(int i = 0; i < camels.length; i++){
             System.out.println(camels[i]);
         }
+        
     }
 
     public Camel getCamelByColor(String color){

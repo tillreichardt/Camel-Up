@@ -23,13 +23,13 @@ public class Game extends World implements GameLoopInterface{
     private BetCards betCards = new BetCards();
     private EndBetCards endBetCards = new EndBetCards();
     private boolean stageEvaluatedPostGame;
-    public Game(/*int numberOfPlayers*/){ 
+    public Game(){ 
         super (18*GRID_SIZE, 18*GRID_SIZE, 1);
         addObject(rennBahn, 450, 775);
-        setup(/*numberOfPlayers*/);
+        setup();
     }
 
-    private void setup(/*int numberOfPlayers*/){
+    private void setup(){
         int numberOfPlayers = 6;
         players = new Player[numberOfPlayers];
         String[] mustHaveNames = {"NullPointerNinja", "ExceptionExplorer", "ClassClown", "DebugDragon", "PixelPirate", "BugHunter"};
@@ -53,84 +53,78 @@ public class Game extends World implements GameLoopInterface{
     }
 
     public void act(){
-        // Check if the game has already ended
-        if (gameEnded) {
-            // Perform one last stage evaluation if this is the first call after game end
-            if (!stageEvaluatedPostGame) {
-                stageEvaluation();
-                stageEvaluatedPostGame = true; // Ensure this block doesn't run again
-                System.out.println("\n"+ getWinner() + " hat das Spiel gewonnen!");
-                System.out.println("\nDas Spiel ist vorbei");
-            }
-            return; // Do nothing more if the game has ended
-        }
-
-        // Check if only the stage has ended
-        if (isStageEnded()) {
-
-        }
-        System.out.println(startPlayer);
         Scanner scan = new Scanner(System.in);
-        for (int i = 0; !gameEnded && !isStageEnded() && i < players.length; i++){ // Beispiel Etappe vorbei. Spieler 3 letzen Zug, Spieler 4 als nächstes in neuer Etappe 
-            int currentIndex = (startPlayer + i) % players.length;
+        for (int i = 0; !gameEnded && !isStageEnded() && i < players.length; i++){ 
+            int currentIndex = (startPlayer + i) % players.length; // Beispiel: Etappe vorbei. Spieler 3 letzen Zug, Spieler 4 als nächstes in neuer Etappe 
             Player activePlayer = players[currentIndex];
-            int response = (int) getUserInput(scan, "\n" + activePlayer + " gib eine Option (1 - 4) ein: ");
-            System.out.println(response);
-
+            int response = Integer.parseInt(getInputWithValidation(scan, "\n" + activePlayer + " gib eine Option (1 - 4) ein: ", "[1-4]"));
+            
             // advanced switch case (nur ab Java 9) 
             switch(response){
                 case BET_CARD -> {
-                        String pColor = (String) getUserInput(scan, "Auf welches Kamel wettest du? Farbe: ");
+                        String pColor = getInputWithValidation(scan, "Welche Farbe wird das Kamel haben, das am Ende der Etappe erster Platz sein wird?: ", generateColorRegex(CAMEL_COLORS));
                         activePlayer.addBetCard(betCards.drawBetCard(pColor));
                         System.out.println(activePlayer + " hat folgende BetCards: " + activePlayer.getAllBetCards());
 
                     }
 
                 case ACTION_CARD -> {
-                        String actionCard = (String) getUserInput(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?: ");
-                        int pPosition = (int) getUserInput(scan, "Auf welche Position soll diese ActionCard?: ");
-
-                        // Prüfe auf ungültige Eingabe
-                        if (!actionCard.equals("dc") && !actionCard.equals("oc")) {
-                            System.out.println("Ungültige Eingabe für die ActionCard. Bitte wähle 'dc' oder 'oc'.");
-                            break;
-                        }
-
-                        // Prüfe, ob der Spieler bereits eine ActionCard gespielt hat
                         if (activePlayer.getActionCardPlayed()) {
-                            System.out.println("Du hast bereits eine ActionCard gespielt, wähle eine andere Option");
+                            System.out.println(activePlayer+" hat bereits eine ActionCard gespielt, wähle eine andere Option");
+                            i--; // der gleiche Spieler ist dann nochmal dran, sonst gibt man nach break an den nächsten Spieler weiter;
                             break;
                         }
-
+                        String actionCard = getInputWithValidation(scan, "Soll eine DesertCard (dc) oder OasisCard (oc) gespielt werden?: ", "(dc|oc)");       
+                        int pPosition = Integer.parseInt(getInputWithValidation(scan, "\n" + activePlayer + " auf welche Position (2-16) soll diese ActionCard?: ", "(1[0-6]|[2-9])"));
+                        // Prüfe, ob der Spieler bereits eine ActionCard gespielt hat
+                        
+                        boolean successful = false; 
                         // Führe die Aktion für die entsprechende Karte aus
                         if (actionCard.equals("dc")) {
-                            rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
+                            successful = rennBahn.addActionCard(activePlayer.getDesertCard(), pPosition, activePlayer);
                         } else { // actionCard.equals("oc")
-                            rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
+                            successful = rennBahn.addActionCard(activePlayer.getOasisCard(), pPosition, activePlayer);
                         }
-                        Greenfoot.delay(1);
+                        
+                        if(!successful){
+                            i--;
+                            System.out.println("Operation war nicht erfolgreich. Bitte versuche es erneut!");
+                            break; // Fehlermeldung in addActionCard() Methode;  
+                        }
+                        Greenfoot.delay(1); // Delay, damit board geupdated wird 
 
                     }
 
                 case PYRAMID_CARD -> {
                         activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
                         Dice dice = dicersSet.rollRandomDice(); // sonst wird die Methode rollRandomDice() zweimal ausgeführt
-                        rennBahn.moveCamel(dice.getColor(), dice.getValue());
                         System.out.println("Es gibt noch "+ pyramidCards.getSize()  + " Pyramiden Karten");
-                        Greenfoot.delay(1);
+                        rennBahn.moveCamel(dice.getColor(), dice.getValue());
+                        Greenfoot.delay(1); // Delay, damit board geupdated wird 
 
-                        if (isStageEnded()) {
-                            System.out.println("Die Etappe ist vorbei");
+                        if (isStageEnded() && !gameEnded) {
                             startPlayer = currentIndex + 1; // Token den Spieler links von uns weiter geben (+1) 
                             stageEvaluation();
                             resetStage();
                         }
-
+                        if (gameEnded) {
+                            stageEvaluation();
+                            String s = getWinner().size() > 1 ? " haben " : " hat";
+                            System.out.println("\n\n"+ String.join(", ", getWinner().stream().map(Object::toString).toArray(String[]::new)) + s + " das Spiel gewonnen!");
+                            System.out.println("\n\n\n---------------------  Das Spiel ist vorbei ---------------------");
+                        }   
                     }
-                case END_GAME_BET -> {
-                        String pppColor = (String) getUserInput(scan, "choose a camel color to bet on: ");
-                        String pPosition = (String) getUserInput(scan, "Welche Position denkst du hast das Kamel am Ende des Spiels? (first/last): ");
-                        makeEndGameBet(activePlayer, pppColor, pPosition);
+                case END_GAME_BET -> { 
+                        // Überprüfung, ob Spieler überhaupt legen kann, ob erst mit makeEndGameBet, muss früher kommen 
+                        System.out.println();
+                        List<EndBetCard> availableEndBetCards = activePlayer.getAvailableEndBetCards();
+                        String[] availableColors = new String[availableEndBetCards.size()];
+                        for (int j = 0; j < availableColors.length; j++){
+                            availableColors[j] = availableEndBetCards.get(j).getColor();
+                        }
+                        String pColor = getInputWithValidation(scan, "Die Farben "+ activePlayer.getAvailableEndBetCards()+ " stehen "+activePlayer+" noch zur Verfügung. \nWelche dieser Farben soll das Kamel haben, auf das du wettest?: ", generateColorRegex(availableColors)); 
+                        String pPosition = getInputWithValidation(scan, "Welche Position denkst du hat das Kamel am Ende des Spiels? (first/last): ", "(first|last)");
+                        makeEndGameBet(activePlayer, pColor, pPosition);
 
                     }
 
@@ -140,12 +134,13 @@ public class Game extends World implements GameLoopInterface{
             } 
         }
     }
-
-    public void moveWhite(){
-        rennBahn.moveCamel("white", 1);
+    
+    private String generateColorRegex(String[] colors){
+        String joinedColors = String.join("|",colors);
+        return "\\b(" + joinedColors + ")\\b"; 
     }
-
-    public void resetStage(){
+    
+    private void resetStage(){
         betCards.resetBetCardList();
         pyramidCards.resetPyramidCards();
         dicersSet.resetDiceSet();
@@ -154,6 +149,7 @@ public class Game extends World implements GameLoopInterface{
             player.clearPyramidCards();
             player.setActionCardPlayed(false);
         }
+        if(rennBahn.getSizeActionCardsOnTrack() == 0) return;
         rennBahn.removeActionCardsOnTrack();
     }
 
@@ -172,6 +168,8 @@ public class Game extends World implements GameLoopInterface{
 
     public void evaluateEndGameBets() {
         if (!gameEnded) return;  // sicherstellen, dass die methode nur nach dem spiel ende ausgeführt wird
+        System.out.println("\nEndGameBetCards Auswertung:");
+        if (endBetCards.getBetsForFirstCamel().size() == 0 && endBetCards.getBetsForLastCamel().size() == 0) System.out.println("Entfällt, da keine Wetten platziert wurden.");
         List<Camel> sortedCamels = rennBahn.getCamelSorted();
         Camel firstPlaceCamel = sortedCamels.get(0);
         Camel lastPlaceCamel = sortedCamels.get(sortedCamels.size() - 1);
@@ -212,7 +210,8 @@ public class Game extends World implements GameLoopInterface{
     }
 
     public void stageEvaluation(){
-        System.out.println("\n");
+        System.out.println("\n\n\n---------------------  Die Etappe ist vorbei ---------------------\n\n");
+        System.out.println("\nEtappenwertung:");
         List<Camel> sortedCamels = rennBahn.getCamelSorted();
         Camel firstPlaceCamel = sortedCamels.get(0);
         Camel lastPlaceCamel = sortedCamels.get(sortedCamels.size() - 1);
@@ -248,7 +247,7 @@ public class Game extends World implements GameLoopInterface{
         }
     }
 
-    public void startGame(){
+    private void startGame(){
         Dice[] würfel = dicersSet.rollAllAvailableDices();
 
         for(int i = 0; i < CAMEL_COLORS.length; i++){
@@ -273,24 +272,44 @@ public class Game extends World implements GameLoopInterface{
         }
     }
 
+    private String getInputWithValidation(Scanner scanner, String question, String regex) {
+        String input;
+        do {
+            System.out.print(question);
+            input = scanner.nextLine().trim();
+            if (!input.matches(regex)) {
+                System.out.println("Ungültige Eingabe. Bitte erneut versuchen.");
+            }
+        } while (!input.matches(regex));
+
+        return input;
+    }
+    
     public void printCoinsValuesOfPlayers(){
-        System.out.println("\n");
-        for(int i = 0; i < players.length; i++){
-            System.out.println(players[i] + " hat im Moment " + players[i].getCoins()+ " Coins.");
+        System.out.println("\nPunktestand der Spieler: ");
+        List<Player> sortedPlayers = getSortedPlayersByCoins();
+        for(Player player : sortedPlayers){
+            System.out.println(player + " hat im Moment " + player.getCoins()+ " Coins.");
         }
     }
-
-    public Player getWinner() {
-        if (players.length == 0) {
-            return null; // No players in the game
+    
+    public List<Player> getSortedPlayersByCoins(){
+        List<Player> sortedPlayers = new ArrayList<>();
+        for (int i = 0; i < players.length; i++){
+            sortedPlayers.add(players[i]);
         }
+        Comparator<Player> playerComparator = (p1, p2) -> p2.getCoins() - p1.getCoins();
 
-        Player winner = players[0]; // Start with the first player as a potential winner
-
-        for (int i = 1; i < players.length; i++) {
-            if (players[i].getCoins() > winner.getCoins()) {
-                winner = players[i]; // Update the winner if another player has more coins
-            }
+        Collections.sort(sortedPlayers, playerComparator);
+        return sortedPlayers;
+    }
+    
+    public List<Player> getWinner() {
+        List<Player> winner = new ArrayList<>();
+        List<Player> sortedPlayers = getSortedPlayersByCoins();
+        int winnerCoins = sortedPlayers.get(0).getCoins();
+        for (Player player : sortedPlayers) {
+            if (player.getCoins() == winnerCoins) winner.add(player);
         }
 
         return winner; // Return the player with the most coins

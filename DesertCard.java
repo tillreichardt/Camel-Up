@@ -20,6 +20,6 @@ public class DesertCard extends ActionCard
             camelTrack.moveCamel(camel.getColor(), -1);
         }
         camelTrack.updateBoard();
-        System.out.println(this.name + "wurde von " + camel.getColor() + " aktiviert"); 
+        System.out.println(this.name + " wurde von dem  " + camel.getColor() + " Camel aktiviert (moved -1)"); 
     }
 }
