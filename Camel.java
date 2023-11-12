@@ -1,20 +1,18 @@
 import greenfoot.*;  
-
 public class Camel extends Actor
 {
     private int positionOnTrack;
     private String color;
-    private Camel camelAbove; //der über mir 
+    private Camel camelAbove; 
     private Camel camelBelow; 
-    public Camel(String pColor,  int posAufStrecke){
+    public Camel(String pColor, int posAufStrecke){
         color = pColor;
-        //setLocation(x, y);
         positionOnTrack = posAufStrecke;
         camelBelow = null; 
         camelAbove = null; 
     }
     
-    // sedders
+    // sseeddddeerrss
     public void setcamelAbove(Camel camel){
         camelAbove = camel;
     }
@@ -23,12 +21,12 @@ public class Camel extends Actor
         camelBelow = camel; 
     }
     
-    public void setPositionOnTrack(int value){
+    public void setPositionOnTrack(int pPositionOnTrack){
         if (isCarrying()) {
             // Wenn das Kamel auf einem anderen Kamel sitzt, bewege beide gemeinsam
-            camelAbove.setPositionOnTrack(value);
+            camelAbove.setPositionOnTrack(pPositionOnTrack);
         }
-        this.positionOnTrack = value; 
+        this.positionOnTrack = pPositionOnTrack; 
     }
 
     // gedders
@@ -41,12 +39,12 @@ public class Camel extends Actor
     }
 
     // methods 
-    public void move(int schritte) {
+    public void move(int pSteps) {
         if (isCarrying()) {
             // Wenn das Kamel auf einem anderen Kamel sitzt, bewege beide gemeinsam
-            camelAbove.move(schritte);
+            camelAbove.move(pSteps);
         }
-        this.positionOnTrack += schritte;
+        this.positionOnTrack += pSteps;
     }
 
     public int camelsAbove(){
@@ -96,18 +94,14 @@ public class Camel extends Actor
             camelBelow  = null; 
         } 
     }
-
+    
+    // gibt false zurück, wenn keiner getragen wird bzw. wenn ich niemanden trage / auf mir habe
     public boolean isCarrying() {
         return camelAbove != null;
     }
     
-    public void carry(Camel camel) { // z.b. c1 soll auf c2. --> c2.carry(c1)
-        camelAbove = camel;
-        camel.setcamelBelow(this); 
-    }
-    
-    @Override 
-    public String toString() {
-        return color + "; pos = " + positionOnTrack + "; cAbove = " +  camelsAbove() + "; cBelow = " + camelsBelow(); // Dies gibt z.B. "greenCamel" für ein grünes Kamel aus
+    public void carry(Camel pCamel) { // z.b. c1 soll auf c2. --> c2.carry(c1)
+        camelAbove = pCamel;
+        pCamel.setcamelBelow(this); 
     }
 }

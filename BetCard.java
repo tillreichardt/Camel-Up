@@ -3,7 +3,7 @@ import java.util.*;
 
 public class BetCard{        
     private String color;        
-    private HashMap<Integer, Integer> punkteMap;        
+    private HashMap<Integer, Integer> punkteMap; // Coins       
     
     public BetCard(String camelColor, HashMap<Integer, Integer> punkteMap) {            
         this.color = camelColor;            
@@ -14,9 +14,9 @@ public class BetCard{
         return color;        
     }        
 
-    public int getCoinsForPlacement(int platzierung) {            
-        if (punkteMap.containsKey(platzierung)) {                
-            return punkteMap.get(platzierung);            
+    public int getCoinsForPlacement(int pPlatzierung) {            
+        if (punkteMap.containsKey(pPlatzierung)) {                
+            return punkteMap.get(pPlatzierung);            
         } else {                
             return -1;            
         }        

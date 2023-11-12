@@ -1,4 +1,6 @@
 
+
+// musste Namen ändern, sonst müsste ich überall mein List<...> ... = new ArrayList<>(); in ArrayList<...> ... = new ArrayList<>(); ändern und da hatte ich kein Bock drauf, weil es schon so viele war :P
 public class LostList<ContentType> {
 
     /* --------- Anfang der privaten inneren Klasse -------------- */

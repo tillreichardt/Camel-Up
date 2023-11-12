@@ -3,7 +3,7 @@ import java.util.Random;
 public class Dice {
     private String color;
     private Random rand = new Random();
-    private int value = -1; // Use -1 as a sentinel value to indicate not rolled
+    private int value = -1; // -1 als default value = nicht gerolled
 
     public Dice(String pcolor) {
         this.color = pcolor;
@@ -27,12 +27,11 @@ public class Dice {
     }
 
     public void reset() {
-        this.value = -1; // Reset to the sentinel value
+        this.value = -1; 
     }
     
     @Override 
     public String toString() {
         return color + "Dice";
-
     }
 }

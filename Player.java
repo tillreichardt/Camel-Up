@@ -91,6 +91,7 @@ public class Player extends Actor
         return endBetCardsForPlayer.size();
     }
     
+    // EndBetCard verbrauchen
     public EndBetCard getEndBetsCard(String color){
         if (getEndBetsCardsSize() == 0){
             System.out.println(name + " hat keine EndBetCards mehr.");
@@ -111,7 +112,8 @@ public class Player extends Actor
         return endBetCardsForPlayer;
     }
     
-    @Override // ist richtig lost, lieber mit .getName() oder so 
+    
+    @Override // damit spart man sich immer .getName() und wenn man z.b. eine Liste von Spielern printen möchte, kann ich einfach System.out.println(liste); machen, anstatt dann durch diese zu iterieren und jedes mal System.out.println(liste.get(i).getName())
     public String toString() {
         return name;
     }

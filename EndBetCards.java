@@ -1,6 +1,8 @@
 import java.util.*;
 
+
 public class EndBetCards{
+    // damit man auch mal die Liste vom "sChUlmInEsTeRiUm" benutzt aka Pointerliste 
     private LostList<EndBetCard> betsForFirstCamel;
     private LostList<EndBetCard> betsForLastCamel;
     
@@ -17,7 +19,7 @@ public class EndBetCards{
         betsForLastCamel.append(endbetcard);
     }
     
-    public void resetAllLists(){ // nur für full ended game 
+    public void resetAllLists(){ // nur für full ended game wenn man eine "nochmal spielen Funktion einbauen würde, das macht aber den coolen ---- Das Spiel ist vorbei ---- Screen kaputt, weil dann wieder danach etwas kommt lol   
         betsForFirstCamel.toFirst();
         while(!betsForFirstCamel.isEmpty()){
             betsForFirstCamel.remove();

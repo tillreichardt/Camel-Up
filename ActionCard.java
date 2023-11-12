@@ -6,20 +6,20 @@ public class ActionCard extends Card {
     protected int positionOnTrack; 
     protected boolean played;
     protected CamelTrack camelTrack;
-    public ActionCard(String name) {
-        super(name); // Setzen des Kartentyps beim Erstellen der Karte
+    public ActionCard(String pName) {
+        super(pName); // Setzen des Kartentyps beim Erstellen der Karte
     }
     
-    public void activate(Camel camel){
-        System.out.println(this.name + "wurde von " + camel.getColor() + " aktiviert"); 
+    public void activate(Camel pCamel){
+        System.out.println(this.name + "wurde von " + pCamel.getColor() + " aktiviert"); 
     }
     
-    public void setCamelTrack(CamelTrack camelTrack){
-        this.camelTrack = camelTrack;
+    public void setCamelTrack(CamelTrack pCamelTrack){
+        this.camelTrack = pCamelTrack;
     }
     
-    public void setPlayed(boolean value){
-        played = value;
+    public void setPlayed(boolean pPlayed){
+        played = pPlayed;
     }
     
     public boolean getPlayed(){
@@ -30,8 +30,8 @@ public class ActionCard extends Card {
         return this.positionOnTrack;
     }
     
-    public void removeActionCard(ActionCard actioncard){
-        getWorld().removeObject(actioncard);
+    public void removeActionCard(ActionCard pActioncard){
+        getWorld().removeObject(pActioncard);
     }
     
     public void setPositionOnTrack(int pos){

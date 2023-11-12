@@ -1,15 +1,16 @@
 import java.util.*;
 import greenfoot.*;
 public class CamelTrack extends Actor{
-    private static final int BOARD_COLS = 18;
-    private static final int BOARD_ROWS = 5;
-
-    private Dice[] dicers;
-    private Camel[] camels = new Camel[Game.CAMEL_COLORS.length]; 
-    private List<ActionCard> actionCardsOnTrack = new ArrayList<>(); // Liste, weil man weißt nicht, wie lange es wird.
+    private static final int BOARD_COLS = 18; // 18 Felder lang, 1. Felder spawnen die Kamele, 18. Feld ist Siegerfeld  
+    private static final int BOARD_ROWS = 5; // 5 Felder hoch 
+    
+    private Camel[] camels; 
+    private List<ActionCard> actionCardsOnTrack; // Liste, weil man weißt nicht, wie lange es wird.
     private GameLoopInterface glInterface;
-    public CamelTrack(GameLoopInterface glInterface) {
-        this.glInterface = glInterface; 
+    public CamelTrack(GameLoopInterface pGlInterface) {
+        this.glInterface = pGlInterface; 
+        actionCardsOnTrack = new ArrayList<>();
+        camels = new Camel[Game.CAMEL_COLORS.length];
     }
     
     public int getSizeActionCardsOnTrack(){
@@ -23,39 +24,33 @@ public class CamelTrack extends Actor{
         updateBoard();
     }
     
-    public void moveCamel(String camelColor, int steps) {
-        Camel camelToMove = getCamelByColor(camelColor);
+    public void moveCamel(String pCamelColor, int pSteps) {
+        Camel camelToMove = getCamelByColor(pCamelColor);
         camelToMove.dropSelf();
 
-        int targetPosition = camelToMove.getPositionOnTrack() + steps;
+        int targetPosition = camelToMove.getPositionOnTrack() + pSteps;
         Camel camelAtTarget = getCamelAtPosition(targetPosition);
 
         if (camelAtTarget != null){ // Falls targetPosition leer ist, ist highestCamel auch null und dann bekommt man nullPointerExeption
             camelAtTarget.getHighestCamel().carry(camelToMove);
         }
-        camelToMove.move(steps);
+        camelToMove.move(pSteps);
         
         ActionCard cardAtTarget = getActionCardAtPosition(targetPosition);
-        // gucken, ob an targetPosition eine SpecialCard liegt
+        // Prüfen, ob an targetPosition eine SpecialCard liegt
         if (cardAtTarget != null){
             cardAtTarget.activate(camelToMove); 
         }
         
-        
+        // Prüfen, ob ein Kamel ins Ziel kommen wird (Feld 17 oder weiter
         if (targetPosition > BOARD_COLS-2){
-            camelToMove.setPositionOnTrack(BOARD_COLS-1);
+            camelToMove.setPositionOnTrack(BOARD_COLS-1); // wenn targetPosition möglicherweise 19 sein sollte, wird diese auf 17 gesetzt, damit die Gewinner immer im Bild angezeigt werden 
             glInterface.setGameEnded(true);
         }
         updateBoard();
     }
 
     public void updateBoard(){
-        // Wir müssen durch alle durch loopen
-        // Und die Position snacken
-        // und gucken ob sie auf jemanden sitzen 
-        // wenn sie auf einem sitzen, nach oben schieben in der reihenfolge 
-
-        //1. Durch loopen
         int ownWidth = getImage().getWidth();
         int ownHeight = getImage().getHeight();
 
@@ -67,19 +62,27 @@ public class CamelTrack extends Actor{
 
         for(int i = 0; i < camels.length; i++){
             float x = ownX - ownWidth / 2 + camels[i].getPositionOnTrack() * cellWidth + cellWidth/ 2;
+            // Mitte von CamelTrack liegt bei P(450|125) bzw. P2(450|775)
+            // x Koordinate (450) - eigene Bildlänge (900 / 2 = 450) = 0 --> man ist links am Rand des Bildes (x=0) 
+            // 0 + posAufTrack * 50 + 25 --> damit man richtige posAufTrack hat und die halbe Zellebreite, damit man in der mitte von der Zelle ist ("Anckerpunkt" eines Bildes / Objekt ist immer in der Mitte von diesem)
+            
             float y = ownY + ownHeight / 2 - camels[i].camelsBelow() * cellHeight - cellHeight / 2;
-            //        900 - 125 + 0 + 25
+            // Das gleiche mit der y Koordinate, damit man die richtige höhe bekommt
+            
             camels[i].setLocation((int)x, (int)y);
         }
         for (int i = 0; i < actionCardsOnTrack.size(); i++){
             float x = ownX - ownWidth / 2 + actionCardsOnTrack.get(i).getPositionOnTrack() * cellWidth + cellWidth/ 2;
-            float y = 875;
+            float y = 225;
+            
+            // gleiche, wie oben, für die ActionCards
 
             actionCardsOnTrack.get(i).setLocation((int)x, (int)y);
         }
     }
 
     public List<Camel> getCamelSorted(){
+        // gibt eine Liste von den sortierten Kamelen zurück (erster Index der Liste ist erster Platz des Spiel während des Aufrufs, beinhaltet, dass oberster im Kamelturm erster ist ) 
         List<Camel> sortedCamels = new ArrayList<>();
         for (int i = 0; i < camels.length; i++){
             sortedCamels.add(camels[i]);
@@ -106,45 +109,45 @@ public class CamelTrack extends Actor{
         return sortedCamels;
     }
 
-    public boolean addActionCard(ActionCard card, int position, Player Owner) {
-        if (position < 1 && position > BOARD_COLS-2) {
+    public boolean addActionCard(ActionCard pCard, int pPosition, Player pOwner) {
+        if (pPosition < 1 && pPosition > BOARD_COLS-2) {
             System.out.println("Position befindet sich außerhalb des Definitionsbereiches. Muss (2-16)");
             return false;
         }
-        if (getCamelAtPosition(position) != null){
+        if (getCamelAtPosition(pPosition) != null){
             System.out.println("Auf der Position befindet sich bereits ein Camel");
             return false;
         } 
-        if (getCamelAtPosition(position-1) != null && getCamelAtPosition(position+1) != null){
+        if (getCamelAtPosition(pPosition-1) != null || getCamelAtPosition(pPosition+1) != null){
             System.out.println("Du darfst keine Karte unmittelbar vor und nach einem Camel platzieren.");
             return false;
         } 
-        if (getActionCardAtPosition(position) != null){
+        if (getActionCardAtPosition(pPosition) != null){
             System.out.println("Auf der Position befindet sich bereits eine ActionCard");
             return false;
         }
-        if (getActionCardAtPosition(position-1) != null && getActionCardAtPosition(position+1) != null){
+        if (getActionCardAtPosition(pPosition-1) != null || getActionCardAtPosition(pPosition+1) != null){
             System.out.println("Du darfst keine Karte unmittelbar vor und nach einer ActionCard platzieren.");
             return false;
         }
-        if (Owner.getActionCardPlayed() == true){
+        if (pOwner.getActionCardPlayed() == true){
             System.out.println("Du hast bereits deine ActionCard benutzt"); 
             return false; 
         }
-        card.setCamelTrack(this);
-        card.setPositionOnTrack(position);
-        card.setOwner(Owner);
-        card.setPlayed(true);
-        Owner.setActionCardPlayed(true);
-        getWorld().addObject(card, 0, 0);
-        actionCardsOnTrack.add(card);
+        pCard.setCamelTrack(this);
+        pCard.setPositionOnTrack(pPosition);
+        pCard.setOwner(pOwner);
+        pCard.setPlayed(true);
+        pOwner.setActionCardPlayed(true);
+        getWorld().addObject(pCard, 0, 0);
+        actionCardsOnTrack.add(pCard);
         updateBoard();
         return true; 
     }
 
-    public ActionCard getActionCardAtPosition(int position){
+    public ActionCard getActionCardAtPosition(int pPosition){
         for (ActionCard ac : actionCardsOnTrack) {
-            if (ac.getPositionOnTrack() == position) {
+            if (ac.getPositionOnTrack() == pPosition) {
                 return ac;
             }
         }
@@ -165,19 +168,11 @@ public class CamelTrack extends Actor{
             float x = ownX - ownWidth / 2 + cellWidth / 2;
             float y = ownY - ownHeight / 2 + i * cellHeight + cellHeight / 2;
             camels[i] = new Camel(Game.CAMEL_COLORS[i], 0);
-            String filename = "images/"+Game.CAMEL_COLORS[i]+".png";
+            String filename = "images/Camel-"+Game.CAMEL_COLORS[i]+".png";
             camels[i].setImage(filename);
             getWorld().addObject(camels[i], (int)x, (int)y);
         }
 
-    }
-
-    public void printCamels(){
-        System.out.println("\n");
-        for(int i = 0; i < camels.length; i++){
-            System.out.println(camels[i]);
-        }
-        
     }
 
     public Camel getCamelByColor(String color){
@@ -206,5 +201,4 @@ public class CamelTrack extends Actor{
         }
         return null; // Kein Kamel an dieser Position gefunden
     }
-
 }
