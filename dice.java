@@ -1,11 +1,11 @@
 import java.util.Random;
 
-public class Dice {
+public class dice {
     private String color;
     private Random rand = new Random();
     private int value = -1; // -1 als default value = nicht gerolled
 
-    public Dice(String pcolor) {
+    public dice(String pcolor) {
         this.color = pcolor;
     }
 

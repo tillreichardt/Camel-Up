@@ -116,7 +116,7 @@ public class Game extends World implements GameLoopInterface{
                         // Pyramiden Karte ziehen und würfeln -> Kamele bewegen
                         
                         activePlayer.addPyramidCard(pyramidCards.getPyramidCard());
-                        Dice dice = dicersSet.rollRandomDice(); // sonst wird die Methode rollRandomDice() zweimal ausgeführt
+                        dice dice = dicersSet.rollRandomDice(); // sonst wird die Methode rollRandomDice() zweimal ausgeführt
                         System.out.println("Es gibt noch "+ pyramidCards.getSize()  + " Pyramiden Karten");
                         rennBahn.moveCamel(dice.getColor(), dice.getValue());
                         Greenfoot.delay(1); // Delay, damit board geupdated wird 
@@ -279,7 +279,7 @@ public class Game extends World implements GameLoopInterface{
     }
 
     private void startGame(){
-        Dice[] würfel = dicersSet.rollAllAvailableDices();
+        dice[] würfel = dicersSet.rollAllAvailableDices();
         
         // alle Würfel rollen lassen und den Kamelen somit eine Startposition geben 
         for(int i = 0; i < CAMEL_COLORS.length; i++){
@@ -290,6 +290,12 @@ public class Game extends World implements GameLoopInterface{
             }
         }
         dicersSet.resetDiceSet();
+        System.out.println("\n\nEs gibt vier mögliche Optionen, die ein Spieler durchführen kann: ");
+        System.out.println("1. Option: Eine BetCard ziehen und somit eine Wette platzieren, welches Kamel am Ende einer Etappe erster Platz sein wird.");
+        System.out.println("2. Option: Eine ActionCard legen (entweder DesertCard oder OasisCard) und somit den Gameflow beeinflussen.");
+        System.out.println("3. Option: Eine PyramidCard ziehen und einen Würfel würfeln. Nur mit dieser Option können sich die Kamele bewegen.");
+        System.out.println("4. Option: Eine EndBetCard benutzen und somit eine Wette platzieren, welches Kamel am Ende des Spiels erster bzw. letzer Platz sein wird.");
+        System.out.println("\nEine Etappe endet, sobald es keine PyramidCards mehr gibt. Das Spiel endet, soblad ein Kamel oder ein Kamelturm die Ziellinie erreicht hat.");
     }
 
     private String getInputWithValidation(Scanner scanner, String question, String regex) {
